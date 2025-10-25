@@ -41,10 +41,7 @@ const Header = ({ darkMode, toggleDarkMode }) => {
             <motion.div
               className="flex items-center gap-1.5 bg-dark-800/50 rounded-lg px-2.5 py-1.5"
             >
-              <span className="text-xs text-dark-500 hidden sm:inline">v2.0</span>
-              <div className="px-2 py-0.5 bg-primary-500/20 text-primary-400 rounded text-[10px] font-medium">
-                PRO
-              </div>
+              <span className="text-xs text-dark-500 hidden sm:inline">v0.1</span>
             </motion.div>
           </div>
         </div>
