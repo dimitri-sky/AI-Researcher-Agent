@@ -8,7 +8,10 @@ const InputSection = ({ onGeneratePaper, chatHistory, onSendMessage, isGeneratin
   const [chatInput, setChatInput] = useState('');
   const chatEndRef = useRef(null);
   
-  // Collapsible sections state
+  // Main sections state - only one can be open at a time
+  const [activeSection, setActiveSection] = useState('research'); // 'research', 'settings', or 'agent'
+  
+  // Settings subsections state
   const [modelExpanded, setModelExpanded] = useState(false);
   const [githubExpanded, setGithubExpanded] = useState(false);
   const [filesExpanded, setFilesExpanded] = useState(false);
@@ -56,6 +59,8 @@ const InputSection = ({ onGeneratePaper, chatHistory, onSendMessage, isGeneratin
     e.stopPropagation();
     if (title.trim() && description.trim()) {
       onGeneratePaper(title, description);
+      // Collapse research input and open AI Agent after generation starts
+      setActiveSection('agent');
     }
     // Prevent any scrolling
     if (e.target) {
@@ -101,91 +106,192 @@ const InputSection = ({ onGeneratePaper, chatHistory, onSendMessage, isGeneratin
       }`}
     >
       {/* Section header */}
-      <div className="px-6 py-3.5 border-b border-dark-800/50">
-        <div className="flex items-center gap-2">
-          <div className="p-1.5 rounded-lg bg-primary-500/20">
+      <div className="px-6 py-4 border-b border-dark-800/50 min-h-[76px] flex items-center">
+        <div className="flex items-center gap-3">
+          <div className="p-2 rounded-xl bg-gradient-to-br from-primary-500/20 to-primary-600/20 border border-primary-500/20">
             <MessageSquare className="w-4 h-4 text-primary-400" />
           </div>
-          <h2 className="text-sm font-semibold text-white">Research Input</h2>
+          <div>
+            <h2 className="text-sm font-semibold text-white">Research Input</h2>
+          </div>
         </div>
       </div>
       
       {/* Scrollable content area */}
-      <div className="flex-1 overflow-y-auto custom-scrollbar p-6 flex flex-col">
+      <div className="flex-1 overflow-y-auto custom-scrollbar p-6 flex flex-col gap-4 min-h-0">
         
-        {/* Input form */}
-        <form onSubmit={handleSubmit} className="space-y-3.5 flex-shrink-0">
-          <motion.div
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.2 }}
+        {/* Research Input Section - Collapsible */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="card rounded-2xl overflow-hidden flex-shrink-0"
+        >
+          <button
+            type="button"
+            onClick={() => setActiveSection(activeSection === 'research' ? null : 'research')}
+            className="w-full px-5 py-4 flex items-center justify-between text-left hover:bg-dark-800/60 transition-all group"
           >
-            <label htmlFor="title" className="block text-xs font-medium text-dark-300 mb-1.5">
-              Research Topic
-            </label>
-            <input
-              id="title"
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Quantum Computing in Machine Learning"
-              className="w-full px-4 py-2.5 rounded-lg bg-dark-800/50 border border-dark-700/50 text-white placeholder-dark-500 focus:border-primary-500 focus:bg-dark-800 transition-all text-sm"
-              disabled={isGenerating}
-            />
-          </motion.div>
-          
-          <motion.div
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.3 }}
-          >
-            <label htmlFor="description" className="block text-xs font-medium text-dark-300 mb-1.5">
-              Focus & Methodology
-            </label>
-            <textarea
-              id="description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Describe your research focus..."
-              rows={3}
-              className="w-full px-4 py-2.5 rounded-lg bg-dark-800/50 border border-dark-700/50 text-white placeholder-dark-500 focus:border-primary-500 focus:bg-dark-800 transition-all resize-none text-sm"
-              disabled={isGenerating}
-            />
-          </motion.div>
-          
-          {/* Model Selection Collapsible */}
-          <motion.div
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.35 }}
-            className="border border-dark-700/50 rounded-lg overflow-hidden bg-dark-800/30"
-          >
-            <button
-              type="button"
-              onClick={() => setModelExpanded(!modelExpanded)}
-              className="w-full px-4 py-2.5 flex items-center justify-between text-left hover:bg-dark-800/50 transition-colors"
-            >
-              <div className="flex items-center gap-2">
-                <Key className="w-3.5 h-3.5 text-primary-400" />
-                <span className="text-xs font-medium text-white">Model Selection</span>
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-xl bg-gradient-to-br from-primary-500/20 to-primary-600/20 border border-primary-500/20">
+                <MessageSquare className="w-4 h-4 text-primary-400" />
               </div>
-              {modelExpanded ? (
-                <ChevronUp className="w-4 h-4 text-dark-400" />
-              ) : (
-                <ChevronDown className="w-4 h-4 text-dark-400" />
-              )}
-            </button>
-            
-            <AnimatePresence>
-              {modelExpanded && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: "auto", opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.2 }}
-                  className="border-t border-dark-700/50"
-                >
-                  <div className="p-4 space-y-3">
+              <div>
+                <h3 className="text-sm font-semibold text-white">Research Input</h3>
+                <p className="text-[10px] text-dark-500">Enter your topic and methodology</p>
+              </div>
+            </div>
+            <motion.div
+              animate={{ rotate: activeSection === 'research' ? 180 : 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <ChevronDown className="w-5 h-5 text-dark-400 group-hover:text-white transition-colors" />
+            </motion.div>
+          </button>
+          
+          <AnimatePresence>
+            {activeSection === 'research' && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.3 }}
+                className="border-t border-dark-700/50"
+              >
+                <form onSubmit={handleSubmit} className="p-5 space-y-4">
+                  <div className="space-y-1.5">
+                    <label htmlFor="title" className="block text-xs font-semibold text-gray-300 mb-2 tracking-wide">
+                      Research Topic
+                    </label>
+            <div className="relative group">
+              <input
+                id="title"
+                type="text"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="e.g., Efficient Fine-Tuning of Large Language Models"
+                className="w-full px-4 py-3 rounded-xl bg-dark-800/60 border-2 border-dark-700/50 text-white placeholder-dark-500 focus:border-primary-500/50 focus:bg-dark-800/80 transition-all text-sm group-hover:border-dark-600/50 backdrop-blur-sm shadow-sm"
+                disabled={isGenerating}
+              />
+                      <div className="absolute inset-0 -z-10 rounded-xl bg-gradient-to-r from-primary-500/0 via-primary-500/5 to-primary-600/0 opacity-0 group-focus-within:opacity-100 blur transition-opacity" />
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-1.5">
+                    <label htmlFor="description" className="block text-xs font-semibold text-gray-300 mb-2 tracking-wide">
+                      Focus & Methodology
+                    </label>
+            <div className="relative group">
+              <textarea
+                id="description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Fine-tuning large language models (LLMs) for downstream tasks..."
+                rows={3}
+                className="w-full px-4 py-3 rounded-xl bg-dark-800/60 border-2 border-dark-700/50 text-white placeholder-dark-500 focus:border-primary-500/50 focus:bg-dark-800/80 transition-all resize-none text-sm leading-relaxed group-hover:border-dark-600/50 backdrop-blur-sm shadow-sm"
+                disabled={isGenerating}
+              />
+                      <div className="absolute inset-0 -z-10 rounded-xl bg-gradient-to-r from-primary-500/0 via-primary-500/5 to-primary-600/0 opacity-0 group-focus-within:opacity-100 blur transition-opacity" />
+                    </div>
+                  </div>
+                  
+                  <motion.button
+                    whileHover={{ scale: 1.02, y: -2 }}
+                    whileTap={{ scale: 0.98 }}
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleSubmit(e);
+                    }}
+                    disabled={isGenerating || !title.trim() || !description.trim()}
+                    className="relative w-full py-3.5 px-6 rounded-xl bg-gradient-to-r from-primary-500 via-primary-600 to-primary-700 text-white font-semibold hover:from-primary-600 hover:via-primary-700 hover:to-primary-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-primary-500/30 overflow-hidden group"
+                  >
+                    {/* Shine effect */}
+                    <motion.div
+                      className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"
+                      animate={{ x: ['-100%', '200%'] }}
+                      transition={{ duration: 3, repeat: Infinity, repeatDelay: 1 }}
+                    />
+                    <span className="relative flex items-center justify-center gap-2.5">
+                      <Sparkles className="w-4 h-4" />
+                      Generate Paper
+                    </span>
+                  </motion.button>
+                </form>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
+        
+        {/* Settings Section - Collapsible */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="card rounded-2xl overflow-hidden flex-shrink-0"
+        >
+          <button
+            type="button"
+            onClick={() => setActiveSection(activeSection === 'settings' ? null : 'settings')}
+            className="w-full px-5 py-4 flex items-center justify-between text-left hover:bg-dark-800/60 transition-all group"
+          >
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-xl bg-gradient-to-br from-purple-500/20 to-purple-600/20 border border-purple-500/20">
+                <Key className="w-4 h-4 text-purple-400" />
+              </div>
+              <div>
+                <h3 className="text-sm font-semibold text-white">Settings</h3>
+                <p className="text-[10px] text-dark-500">Model, repository, and files</p>
+              </div>
+            </div>
+            <motion.div
+              animate={{ rotate: activeSection === 'settings' ? 180 : 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <ChevronDown className="w-5 h-5 text-dark-400 group-hover:text-white transition-colors" />
+            </motion.div>
+          </button>
+          
+          <AnimatePresence>
+            {activeSection === 'settings' && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.3 }}
+                className="border-t border-dark-700/50"
+              >
+                <div className="p-4 space-y-3">
+                  {/* Model Selection */}
+                  <div className="bg-dark-800/30 rounded-xl overflow-hidden border border-dark-700/30">
+                    <button
+                      type="button"
+                      onClick={() => setModelExpanded(!modelExpanded)}
+                      className="w-full px-4 py-3 flex items-center justify-between text-left hover:bg-dark-800/50 transition-all group"
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <div className="p-1.5 rounded-lg bg-primary-500/10 group-hover:bg-primary-500/20 transition-colors">
+                          <Key className="w-3.5 h-3.5 text-primary-400" />
+                        </div>
+                        <span className="text-xs font-semibold text-white">Model Selection</span>
+                      </div>
+                      <motion.div
+                        animate={{ rotate: modelExpanded ? 180 : 0 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        <ChevronDown className="w-4 h-4 text-dark-400 group-hover:text-white transition-colors" />
+                      </motion.div>
+                    </button>
+                    
+                    <AnimatePresence>
+                      {modelExpanded && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: "auto", opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.2 }}
+                          className="border-t border-dark-700/30"
+                        >
+                          <div className="p-4 space-y-3">
                     <div>
                       <label className="block text-xs font-medium text-dark-300 mb-1.5">
                         Provider
@@ -233,45 +339,43 @@ const InputSection = ({ onGeneratePaper, chatHistory, onSendMessage, isGeneratin
                         disabled={isGenerating}
                       />
                     </div>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </motion.div>
-          
-          {/* GitHub Repo Selection Collapsible */}
-          <motion.div
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.36 }}
-            className="border border-dark-700/50 rounded-lg overflow-hidden bg-dark-800/30"
-          >
-            <button
-              type="button"
-              onClick={() => setGithubExpanded(!githubExpanded)}
-              className="w-full px-4 py-2.5 flex items-center justify-between text-left hover:bg-dark-800/50 transition-colors"
-            >
-              <div className="flex items-center gap-2">
-                <Github className="w-3.5 h-3.5 text-primary-400" />
-                <span className="text-xs font-medium text-white">GitHub Repository</span>
-              </div>
-              {githubExpanded ? (
-                <ChevronUp className="w-4 h-4 text-dark-400" />
-              ) : (
-                <ChevronDown className="w-4 h-4 text-dark-400" />
-              )}
-            </button>
-            
-            <AnimatePresence>
-              {githubExpanded && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: "auto", opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.2 }}
-                  className="border-t border-dark-700/50"
-                >
-                  <div className="p-4 space-y-3">
+                  
+                  {/* GitHub Repository */}
+                  <div className="bg-dark-800/30 rounded-xl overflow-hidden border border-dark-700/30">
+                    <button
+                      type="button"
+                      onClick={() => setGithubExpanded(!githubExpanded)}
+                      className="w-full px-4 py-3 flex items-center justify-between text-left hover:bg-dark-800/50 transition-all group"
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <div className="p-1.5 rounded-lg bg-primary-500/10 group-hover:bg-primary-500/20 transition-colors">
+                          <Github className="w-3.5 h-3.5 text-primary-400" />
+                        </div>
+                        <span className="text-xs font-semibold text-white">GitHub Repository</span>
+                      </div>
+                      <motion.div
+                        animate={{ rotate: githubExpanded ? 180 : 0 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        <ChevronDown className="w-4 h-4 text-dark-400 group-hover:text-white transition-colors" />
+                      </motion.div>
+                    </button>
+                    
+                    <AnimatePresence>
+                      {githubExpanded && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: "auto", opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.2 }}
+                          className="border-t border-dark-700/30"
+                        >
+                          <div className="p-4 space-y-3">
                     <div>
                       <label className="block text-xs font-medium text-dark-300 mb-1.5">
                         Repository URL
@@ -302,50 +406,52 @@ const InputSection = ({ onGeneratePaper, chatHistory, onSendMessage, isGeneratin
                       <Github className="w-3.5 h-3.5" />
                       Login with GitHub
                     </motion.button>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </motion.div>
-          
-          {/* Upload Files Collapsible */}
-          <motion.div
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.37 }}
-            className="border border-dark-700/50 rounded-lg overflow-hidden bg-dark-800/30"
-          >
-            <button
-              type="button"
-              onClick={() => setFilesExpanded(!filesExpanded)}
-              className="w-full px-4 py-2.5 flex items-center justify-between text-left hover:bg-dark-800/50 transition-colors"
-            >
-              <div className="flex items-center gap-2">
-                <Upload className="w-3.5 h-3.5 text-primary-400" />
-                <span className="text-xs font-medium text-white">Upload Files</span>
-                {uploadedFiles.length > 0 && (
-                  <span className="px-1.5 py-0.5 bg-primary-500/20 text-primary-400 rounded text-[10px] font-medium">
-                    {uploadedFiles.length}
-                  </span>
-                )}
-              </div>
-              {filesExpanded ? (
-                <ChevronUp className="w-4 h-4 text-dark-400" />
-              ) : (
-                <ChevronDown className="w-4 h-4 text-dark-400" />
-              )}
-            </button>
-            
-            <AnimatePresence>
-              {filesExpanded && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: "auto", opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.2 }}
-                  className="border-t border-dark-700/50"
-                >
-                  <div className="p-4 space-y-3">
+                  
+                  {/* Upload Files */}
+                  <div className="bg-dark-800/30 rounded-xl overflow-hidden border border-dark-700/30">
+                    <button
+                      type="button"
+                      onClick={() => setFilesExpanded(!filesExpanded)}
+                      className="w-full px-4 py-3 flex items-center justify-between text-left hover:bg-dark-800/50 transition-all group"
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <div className="p-1.5 rounded-lg bg-primary-500/10 group-hover:bg-primary-500/20 transition-colors">
+                          <Upload className="w-3.5 h-3.5 text-primary-400" />
+                        </div>
+                        <span className="text-xs font-semibold text-white">Upload Files</span>
+                        {uploadedFiles.length > 0 && (
+                          <motion.span 
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            className="px-2 py-0.5 bg-primary-500/20 text-primary-400 rounded-full text-[10px] font-bold border border-primary-500/30"
+                          >
+                            {uploadedFiles.length}
+                          </motion.span>
+                        )}
+                      </div>
+                      <motion.div
+                        animate={{ rotate: filesExpanded ? 180 : 0 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        <ChevronDown className="w-4 h-4 text-dark-400 group-hover:text-white transition-colors" />
+                      </motion.div>
+                    </button>
+                    
+                    <AnimatePresence>
+                      {filesExpanded && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: "auto", opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.2 }}
+                          className="border-t border-dark-700/30"
+                        >
+                          <div className="p-4 space-y-3">
                     <input
                       ref={fileInputRef}
                       type="file"
@@ -388,146 +494,165 @@ const InputSection = ({ onGeneratePaper, chatHistory, onSendMessage, isGeneratin
                         ))}
                       </div>
                     )}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </motion.div>
-          
-          <motion.button
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.4 }}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            type="button"
-            onClick={(e) => {
-              e.preventDefault();
-              handleSubmit(e);
-            }}
-            disabled={isGenerating || !title.trim() || !description.trim()}
-            className="w-full py-3 px-6 rounded-lg bg-gradient-to-r from-primary-500 to-primary-600 text-white font-medium hover:from-primary-600 hover:to-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-primary-500/25"
-          >
-            <span className="flex items-center justify-center gap-2">
-              <Sparkles className="w-4 h-4" />
-              Generate Paper
-            </span>
-          </motion.button>
-        </form>
-        
-        {/* Chat interface */}
-        <motion.div
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.5 }}
-          className="mt-6 pt-5 border-t border-dark-800/50 flex flex-col flex-1 min-h-0"
-        >
-          <div className="flex items-center gap-2 mb-3">
-            <div className="p-1.5 rounded-lg bg-primary-500/20">
-              <Bot className="w-3.5 h-3.5 text-primary-400" />
-            </div>
-            <h3 className="text-xs font-semibold text-white">AI Agent</h3>
-          </div>
-          
-          {/* Chat messages - dynamic height */}
-          <div className="bg-dark-800/30 rounded-lg p-3 mb-3 flex-1 min-h-[120px] max-h-[400px] overflow-y-auto custom-scrollbar">
-            {chatHistory.length === 0 ? (
-              <div className="flex items-center justify-center h-full">
-                <p className="text-dark-500 text-xs text-center">
-                  Ask me to edit the paper or code...
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-2">
-                <AnimatePresence>
-                  {chatHistory.map((message, index) => (
-                    <motion.div
-                      key={index}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      className={`flex gap-2 ${
-                        message.role === 'user' ? 'justify-end' : 'justify-start'
-                      }`}
-                    >
-                      {message.role === 'agent' && (
-                        <div className="flex-shrink-0 w-6 h-6 rounded-lg bg-primary-500/20 flex items-center justify-center">
-                          <Bot className="w-3 h-3 text-primary-400" />
-                        </div>
-                      )}
-                      <div
-                        className={`max-w-[80%] px-2.5 py-1.5 rounded-lg text-xs ${
-                          message.role === 'user'
-                            ? 'bg-primary-500 text-white'
-                            : 'bg-dark-700/50 text-dark-200'
-                        }`}
-                      >
-                        {message.content}
-                      </div>
-                      {message.role === 'user' && (
-                        <div className="flex-shrink-0 w-6 h-6 rounded-lg bg-dark-700 flex items-center justify-center">
-                          <User className="w-3 h-3 text-dark-300" />
-                        </div>
-                      )}
-                    </motion.div>
-                  ))}
-                </AnimatePresence>
-                <div ref={chatEndRef} />
-              </div>
+                </div>
+              </motion.div>
             )}
-          </div>
+          </AnimatePresence>
+        </motion.div>
+        
+        {/* AI Agent Section - Collapsible */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className={`card rounded-2xl overflow-hidden ${activeSection === 'agent' ? 'flex-1 flex flex-col min-h-0' : 'flex-shrink-0'}`}
+        >
+          <button
+            type="button"
+            onClick={() => setActiveSection(activeSection === 'agent' ? null : 'agent')}
+            className="w-full px-5 py-4 flex items-center justify-between text-left hover:bg-dark-800/60 transition-all group flex-shrink-0"
+          >
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-xl bg-gradient-to-br from-emerald-500/20 to-emerald-600/20 border border-emerald-500/20">
+                <Bot className="w-5 h-5 text-emerald-400" />
+              </div>
+              <div>
+                <h3 className="text-sm font-semibold text-white">AI Agent</h3>
+                <p className="text-[10px] text-dark-500">I can edit your paper and code</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <motion.div
+                animate={{ rotate: activeSection === 'agent' ? 180 : 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <ChevronDown className="w-5 h-5 text-dark-400 group-hover:text-white transition-colors" />
+              </motion.div>
+            </div>
+          </button>
           
-          {/* Chat input */}
-          <form onSubmit={handleChatSubmit} className="flex gap-2">
-            <input
-              ref={chatFileInputRef}
-              type="file"
-              multiple
-              onChange={handleChatFileUpload}
-              className="hidden"
-              disabled={isGenerating}
-            />
-            
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              type="button"
-              onClick={() => chatFileInputRef.current?.click()}
-              disabled={isGenerating}
-              className="px-3 py-2 rounded-lg bg-dark-700/50 text-dark-300 hover:bg-dark-700 hover:text-primary-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-              title="Upload files"
-            >
-              <Upload className="w-3.5 h-3.5" />
-            </motion.button>
-            
-            <input
-              type="text"
-              value={chatInput}
-              onChange={(e) => setChatInput(e.target.value)}
-              placeholder="Ask me anything..."
-              className="flex-1 px-3 py-2 rounded-lg bg-dark-800/50 border border-dark-700/50 text-white placeholder-dark-500 focus:border-primary-500 focus:bg-dark-800 transition-all text-xs"
-              disabled={isGenerating}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  e.preventDefault();
-                  handleChatSubmit(e);
-                }
-              }}
-            />
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              type="button"
-              onClick={(e) => {
-                e.preventDefault();
-                handleChatSubmit(e);
-              }}
-              disabled={isGenerating || !chatInput.trim()}
-              className="px-3 py-2 rounded-lg bg-primary-500 text-white hover:bg-primary-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-            >
-              <Send className="w-3.5 h-3.5" />
-            </motion.button>
-          </form>
+          <AnimatePresence>
+            {activeSection === 'agent' && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.3 }}
+                className="border-t border-dark-700/50 flex flex-col flex-1 min-h-0"
+              >
+                <div className="p-5 flex flex-col flex-1 min-h-0">
+                  {/* Chat messages - dynamic height */}
+                  <div className="card rounded-xl p-4 mb-3 flex-1 min-h-[150px] overflow-y-auto custom-scrollbar backdrop-blur-sm">
+                    {chatHistory.length === 0 ? (
+                      <div className="flex items-center justify-center h-full">
+                        <p className="text-dark-500 text-xs text-center">
+                          I can edit the paper and code...
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        <AnimatePresence>
+                          {chatHistory.map((message, index) => (
+                            <motion.div
+                              key={index}
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              exit={{ opacity: 0, y: -10 }}
+                              className={`flex gap-2 ${
+                                message.role === 'user' ? 'justify-end' : 'justify-start'
+                              }`}
+                            >
+                              {message.role === 'agent' && (
+                                <div className="flex-shrink-0 w-6 h-6 rounded-lg bg-primary-500/20 flex items-center justify-center">
+                                  <Bot className="w-3 h-3 text-primary-400" />
+                                </div>
+                              )}
+                              <div
+                                className={`max-w-[80%] px-2.5 py-1.5 rounded-lg text-xs ${
+                                  message.role === 'user'
+                                    ? 'bg-primary-500 text-white'
+                                    : 'bg-dark-700/50 text-dark-200'
+                                }`}
+                              >
+                                {message.content}
+                              </div>
+                              {message.role === 'user' && (
+                                <div className="flex-shrink-0 w-6 h-6 rounded-lg bg-dark-700 flex items-center justify-center">
+                                  <User className="w-3 h-3 text-dark-300" />
+                                </div>
+                              )}
+                            </motion.div>
+                          ))}
+                        </AnimatePresence>
+                        <div ref={chatEndRef} />
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* Chat input */}
+                  <form onSubmit={handleChatSubmit} className="flex gap-2 flex-shrink-0">
+                    <input
+                      ref={chatFileInputRef}
+                      type="file"
+                      multiple
+                      onChange={handleChatFileUpload}
+                      className="hidden"
+                      disabled={isGenerating}
+                    />
+                    
+                    <motion.button
+                      whileHover={{ scale: 1.05, y: -1 }}
+                      whileTap={{ scale: 0.95 }}
+                      type="button"
+                      onClick={() => chatFileInputRef.current?.click()}
+                      disabled={isGenerating}
+                      className="p-2.5 rounded-xl bg-dark-800/60 text-dark-400 hover:bg-dark-700/60 hover:text-primary-400 border border-dark-700/50 hover:border-primary-500/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                      title="Upload files"
+                    >
+                      <Upload className="w-4 h-4" />
+                    </motion.button>
+                    
+                    <div className="flex-1 relative group">
+                      <input
+                        type="text"
+                        value={chatInput}
+                        onChange={(e) => setChatInput(e.target.value)}
+                        placeholder="Ask me anything..."
+                        className="w-full px-4 py-2.5 rounded-xl bg-dark-800/60 border-2 border-dark-700/50 text-white placeholder-dark-500 focus:border-primary-500/50 focus:bg-dark-800/80 transition-all text-sm group-hover:border-dark-600/50"
+                        disabled={isGenerating}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            handleChatSubmit(e);
+                          }
+                        }}
+                      />
+                      <div className="absolute inset-0 -z-10 rounded-xl bg-gradient-to-r from-primary-500/0 via-primary-500/5 to-primary-600/0 opacity-0 group-focus-within:opacity-100 blur transition-opacity" />
+                    </div>
+                    
+                    <motion.button
+                      whileHover={{ scale: 1.05, y: -1 }}
+                      whileTap={{ scale: 0.95 }}
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleChatSubmit(e);
+                      }}
+                      disabled={isGenerating || !chatInput.trim()}
+                      className="p-2.5 rounded-xl bg-gradient-to-r from-primary-500 to-primary-600 text-white hover:from-primary-600 hover:to-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-primary-500/25"
+                    >
+                      <Send className="w-4 h-4" />
+                    </motion.button>
+                  </form>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </motion.div>
       </div>
     </motion.div>

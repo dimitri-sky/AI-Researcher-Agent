@@ -110,13 +110,15 @@ const OutputSection = ({ paperData, currentView, onViewChange, onUpdateLatex, is
       className="flex flex-col min-h-0 h-full border-r border-dark-800/50 bg-dark-900/30 backdrop-blur-xl"
     >
       {/* Section header */}
-      <div className="px-6 py-3.5 border-b border-dark-800/50">
-        <div className="flex items-center justify-between gap-4">
+      <div className="px-6 py-4 border-b border-dark-800/50 backdrop-blur-sm bg-dark-900/30 min-h-[76px] flex items-center">
+        <div className="flex items-center justify-between gap-4 w-full">
           <div className="flex items-center gap-3">
-            <div className="p-1.5 rounded-lg bg-primary-500/20">
+            <div className="p-2 rounded-xl bg-gradient-to-br from-primary-500/20 to-primary-600/20 border border-primary-500/20">
               <FileText className="w-4 h-4 text-primary-400" />
             </div>
-            <h2 className="text-sm font-semibold text-white">Paper</h2>
+            <div>
+              <h2 className="text-sm font-semibold text-white">Research Paper</h2>
+            </div>
           </div>
           
           {/* Right side: Action button + View toggle */}
@@ -126,22 +128,22 @@ const OutputSection = ({ paperData, currentView, onViewChange, onUpdateLatex, is
               <>
                 {currentView === 'preview' ? (
                   <motion.button
-                    whileHover={{ scale: 1.05 }}
+                    whileHover={{ scale: 1.05, y: -1 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={handleDownloadPDF}
-                    className="px-3 py-1.5 rounded-lg bg-dark-800 hover:bg-dark-700 text-white text-xs font-medium transition-all flex items-center gap-1.5"
+                    className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white text-xs font-semibold transition-all flex items-center gap-2 shadow-lg shadow-green-500/20"
                   >
                     <Download className="w-3.5 h-3.5" />
-                    Download PDF
+                    PDF
                   </motion.button>
                 ) : (
                   <motion.button
-                    whileHover={{ scale: 1.05 }}
+                    whileHover={{ scale: 1.05, y: -1 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={handleCopyLatex}
-                    className="px-3 py-1.5 rounded-lg bg-dark-800 hover:bg-dark-700 text-white text-xs font-medium transition-all flex items-center gap-1.5"
+                    className="px-3.5 py-2 rounded-xl bg-dark-800/80 hover:bg-dark-700 border border-dark-700/50 text-white text-xs font-semibold transition-all flex items-center gap-2"
                   >
-                    {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                    {copied ? <Check className="w-3.5 h-3.5 text-green-400" /> : <Copy className="w-3.5 h-3.5" />}
                     {copied ? 'Copied' : 'Copy'}
                   </motion.button>
                 )}
@@ -149,27 +151,27 @@ const OutputSection = ({ paperData, currentView, onViewChange, onUpdateLatex, is
             )}
             
             {/* View toggle */}
-            <div className="flex items-center gap-1 bg-dark-800/50 rounded-lg p-0.5">
+            <div className="flex items-center gap-1 bg-dark-800/60 rounded-xl p-1 border border-dark-700/50">
               <button
                 onClick={() => onViewChange('preview')}
-                className={`px-2.5 py-1.5 rounded-md text-xs font-medium transition-all ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 ${
                   currentView === 'preview'
-                    ? 'bg-primary-500 text-white'
-                    : 'text-dark-400 hover:text-white'
+                    ? 'bg-primary-500 text-white shadow-lg shadow-primary-500/30'
+                    : 'text-dark-400 hover:text-white hover:bg-dark-700/50'
                 }`}
               >
-                <Eye className="w-3.5 h-3.5 inline mr-1" />
+                <Eye className="w-3.5 h-3.5" />
                 Preview
               </button>
               <button
                 onClick={() => onViewChange('latex')}
-                className={`px-2.5 py-1.5 rounded-md text-xs font-medium transition-all ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 ${
                   currentView === 'latex'
-                    ? 'bg-primary-500 text-white'
-                    : 'text-dark-400 hover:text-white'
+                    ? 'bg-primary-500 text-white shadow-lg shadow-primary-500/30'
+                    : 'text-dark-400 hover:text-white hover:bg-dark-700/50'
                 }`}
               >
-                <Code className="w-3.5 h-3.5 inline mr-1" />
+                <Code className="w-3.5 h-3.5" />
                 LaTeX
               </button>
             </div>
@@ -181,41 +183,90 @@ const OutputSection = ({ paperData, currentView, onViewChange, onUpdateLatex, is
       <div className="flex-1 overflow-y-auto custom-scrollbar">
         {!paperData.latexContent ? (
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
             className="flex flex-col items-center justify-center h-full p-8"
           >
-            <div className="w-16 h-16 rounded-xl bg-dark-800/50 flex items-center justify-center mb-3">
-              <FileText className="w-8 h-8 text-dark-500" />
-            </div>
-            <p className="text-dark-400 text-center text-sm">
-              Your research paper will appear here
-            </p>
-            <p className="text-dark-600 text-xs text-center mt-1.5">
-              Enter a topic and description to generate
-            </p>
+            <motion.div
+              animate={{ 
+                y: [0, -10, 0],
+                rotate: [0, 5, -5, 0]
+              }}
+              transition={{ 
+                duration: 4, 
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+              className="relative mb-6"
+            >
+              <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-dark-800/60 to-dark-800/40 border border-dark-700/50 flex items-center justify-center backdrop-blur-sm">
+                <FileText className="w-10 h-10 text-dark-500" />
+              </div>
+              <motion.div
+                animate={{ 
+                  scale: [1, 1.2, 1],
+                  opacity: [0.3, 0.6, 0.3]
+                }}
+                transition={{ duration: 2, repeat: Infinity }}
+                className="absolute inset-0 rounded-2xl bg-primary-500/20 blur-xl"
+              />
+            </motion.div>
+            
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.2 }}
+              className="text-center space-y-3"
+            >
+              <h3 className="text-lg font-semibold text-white">No paper yet</h3>
+              <p className="text-dark-400 text-sm max-w-xs">
+                Your research paper will appear here after generation
+              </p>
+              <div className="flex items-center justify-center gap-2 pt-2">
+                <div className="w-1.5 h-1.5 rounded-full bg-primary-500/50" />
+                <p className="text-dark-600 text-xs">
+                  Enter a topic and description to begin
+                </p>
+              </div>
+            </motion.div>
           </motion.div>
         ) : (
           <>
             {/* Preview - always mounted, toggle visibility */}
             <div className={`${currentView === 'preview' ? 'block' : 'hidden'} p-8 pb-12`}>
-              <div 
-                ref={previewRef}
-                className="bg-white rounded-2xl shadow-2xl p-12 max-w-4xl mx-auto font-serif"
-              />
+              <motion.div
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.1 }}
+                className="bg-white rounded-3xl shadow-2xl p-12 max-w-4xl mx-auto font-serif border border-gray-200"
+                style={{
+                  boxShadow: '0 20px 60px -10px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(0, 0, 0, 0.05)'
+                }}
+              >
+                <div ref={previewRef} />
+              </motion.div>
             </div>
             
             {/* LaTeX - always editable */}
             <div className={`${currentView === 'latex' ? 'block' : 'hidden'} p-6 pb-12`}>
-              <textarea
-                value={editedLatex}
-                onChange={(e) => {
-                  setEditedLatex(e.target.value);
-                  onUpdateLatex(e.target.value);
-                }}
-                className="w-full min-h-[600px] p-6 bg-dark-800/50 rounded-xl border border-dark-700/50 text-dark-200 font-mono text-sm leading-relaxed focus:border-primary-500 focus:bg-dark-800 transition-all resize-none"
-                spellCheck={false}
-              />
+              <motion.div
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.1 }}
+                className="relative group"
+              >
+                <textarea
+                  value={editedLatex}
+                  onChange={(e) => {
+                    setEditedLatex(e.target.value);
+                    onUpdateLatex(e.target.value);
+                  }}
+                  className="w-full min-h-[600px] p-6 bg-dark-800/60 rounded-2xl border-2 border-dark-700/50 text-dark-200 font-mono text-sm leading-relaxed focus:border-primary-500/50 focus:bg-dark-800/80 transition-all resize-none backdrop-blur-sm shadow-inner"
+                  spellCheck={false}
+                  style={{ tabSize: 2 }}
+                />
+                <div className="absolute inset-0 -z-10 rounded-2xl bg-gradient-to-r from-primary-500/0 via-primary-500/5 to-primary-600/0 opacity-0 group-focus-within:opacity-100 blur transition-opacity" />
+              </motion.div>
             </div>
           </>
         )}
