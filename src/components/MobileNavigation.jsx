@@ -123,16 +123,6 @@ const MobileNavigation = ({ activeSection, onSectionChange, hasContent }) => {
               >
                 {section.label}
               </span>
-              
-              {/* Active indicator dot */}
-              {isActive && (
-                <motion.div
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  className="absolute -bottom-1 w-1 h-1 rounded-full"
-                  style={{ background: '#2F81F7' }}
-                />
-              )}
             </motion.button>
           );
         })}

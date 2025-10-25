@@ -1,8 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Sparkles, MessageSquare, Bot, User, ChevronDown, ChevronUp, Upload, Github, Key, Rocket } from 'lucide-react';
+import { Send, Sparkles, MessageSquare, Bot, User, ChevronDown, ChevronUp, Upload, Github, Key, Rocket, AlertCircle, Check } from 'lucide-react';
+import { PROVIDERS, saveApiKey, getApiKey, hasApiKey } from '../services/aiService';
 
-const InputSection = ({ onGeneratePaper, chatHistory, onSendMessage, isGenerating, isMobile }) => {
+const InputSection = ({ onGeneratePaper, chatHistory, onSendMessage, isGenerating, isMobile, selectedProvider, selectedModel, onProviderChange, onModelChange }) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [chatInput, setChatInput] = useState('');
@@ -16,27 +17,37 @@ const InputSection = ({ onGeneratePaper, chatHistory, onSendMessage, isGeneratin
   const [githubExpanded, setGithubExpanded] = useState(false);
   const [filesExpanded, setFilesExpanded] = useState(false);
   
-  // Model settings
-  const [selectedProvider, setSelectedProvider] = useState('google');
-  const [selectedModel, setSelectedModel] = useState('gemini-1.5-flash');
+  // API Key state and management
   const [apiKey, setApiKey] = useState('');
+  const [apiKeySaved, setApiKeySaved] = useState(false);
+  const [showApiKeyWarning, setShowApiKeyWarning] = useState(false);
   
-  // Latest default models by provider
-  const defaultModelsByProvider = {
-    google: 'gemini-2.5-pro',
-    openai: 'gpt-5',
-    xai: 'grok-4',
-    anthropic: 'claude-4.5-sonnet',
-    meta: 'llama-3.1-405b',
-    mistral: 'mistral-large',
-    cohere: 'command-r-plus'
-  };
+  // Load API key for selected provider on mount and provider change
+  useEffect(() => {
+    const savedKey = getApiKey(selectedProvider);
+    setApiKey(savedKey);
+    setApiKeySaved(!!savedKey);
+  }, [selectedProvider]);
   
   // Handle provider change
   const handleProviderChange = (provider) => {
-    setSelectedProvider(provider);
-    // Set the default/latest model for the new provider
-    setSelectedModel(defaultModelsByProvider[provider] || '');
+    onProviderChange(provider);
+    const savedKey = getApiKey(provider);
+    setApiKey(savedKey);
+    setApiKeySaved(!!savedKey);
+  };
+  
+  // Handle API key save
+  const handleSaveApiKey = () => {
+    if (apiKey.trim()) {
+      saveApiKey(selectedProvider, apiKey.trim());
+      setApiKeySaved(true);
+      // Flash success animation
+      setTimeout(() => {
+        setApiKeySaved(false);
+        setTimeout(() => setApiKeySaved(true), 100);
+      }, 100);
+    }
   };
   
   // GitHub settings
@@ -57,10 +68,27 @@ const InputSection = ({ onGeneratePaper, chatHistory, onSendMessage, isGeneratin
   const handleSubmit = (e) => {
     e.preventDefault();
     e.stopPropagation();
+    
+    // Check if API key is available
+    if (!hasApiKey(selectedProvider)) {
+      setShowApiKeyWarning(true);
+      setActiveSection('settings');
+      setModelExpanded(true);
+      // Scroll to settings if needed
+      setTimeout(() => {
+        const settingsElement = document.querySelector('#settings-section');
+        if (settingsElement) {
+          settingsElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 300);
+      return;
+    }
+    
     if (title.trim() && description.trim()) {
       // Open AI Agent section to show loading progress
       setActiveSection('agent');
       onGeneratePaper(title, description);
+      setShowApiKeyWarning(false);
     }
     // Prevent any scrolling
     if (e.target) {
@@ -268,12 +296,14 @@ const InputSection = ({ onGeneratePaper, chatHistory, onSendMessage, isGeneratin
                       type="button"
                       onClick={(e) => {
                         e.preventDefault();
-                        // Load demo paper with mock data - directly trigger generation
+                        
+                        // Load demo paper with mock data - no API key needed
                         const demoTitle = "Efficient Fine-Tuning of Large Language Models via Adaptive Low-Rank Decomposition";
                         const demoDescription = "Fine-tuning large language models (LLMs) for downstream tasks remains computationally expensive due to the massive number of parameters requiring optimization. We introduce AdaLoRA (Adaptive Low-Rank Adaptation), a parameter-efficient fine-tuning method that dynamically allocates parameter budgets across weight matrices based on their importance to the task.";
                         // Open AI Agent section to show loading progress
                         setActiveSection('agent');
-                        onGeneratePaper(demoTitle, demoDescription);
+                        onGeneratePaper(demoTitle, demoDescription, true); // Pass true for demo mode
+                        setShowApiKeyWarning(false);
                       }}
                       disabled={isGenerating}
                       className="relative flex-1 py-2 px-4 rounded-xl font-semibold text-xs disabled:opacity-50 disabled:cursor-not-allowed transition-all overflow-hidden group"
@@ -304,6 +334,7 @@ const InputSection = ({ onGeneratePaper, chatHistory, onSendMessage, isGeneratin
         
         {/* Settings Section - Collapsible */}
         <motion.div
+          id="settings-section"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
@@ -378,9 +409,35 @@ const InputSection = ({ onGeneratePaper, chatHistory, onSendMessage, isGeneratin
                           className="border-t border-dark-700/30"
                         >
                           <div className="p-4 space-y-3">
+                    {/* API Key Warning */}
+                    {showApiKeyWarning && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="p-3 rounded-lg bg-yellow-500/10 border border-yellow-500/30"
+                      >
+                        <div className="flex items-start gap-2">
+                          <AlertCircle className="w-4 h-4 text-yellow-500 mt-0.5 flex-shrink-0" />
+                          <div>
+                            <p className="text-xs text-yellow-200 font-medium">
+                              API Key Required
+                            </p>
+                            <p className="text-xs text-yellow-300/70 mt-0.5">
+                              Please add your {PROVIDERS[selectedProvider]?.name || selectedProvider} API key below to generate papers.
+                            </p>
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+                    
                     <div>
                       <label className="block text-xs font-medium text-dark-300 mb-1.5">
                         Provider
+                        {PROVIDERS[selectedProvider]?.recommended && (
+                          <span className="ml-2 px-2 py-0.5 bg-green-500/20 text-green-400 rounded-full text-[10px] font-semibold">
+                            Recommended
+                          </span>
+                        )}
                       </label>
                       <select
                         value={selectedProvider}
@@ -388,42 +445,71 @@ const InputSection = ({ onGeneratePaper, chatHistory, onSendMessage, isGeneratin
                         className="w-full px-3 py-2 rounded-lg bg-dark-800/50 border border-dark-700/50 text-white text-xs focus:border-primary-500 focus:bg-dark-800 transition-all"
                         disabled={isGenerating}
                       >
-                        <option value="google">Google</option>
-                        <option value="openai">OpenAI</option>
-                        <option value="xai">xAI</option>
-                        <option value="anthropic">Anthropic</option>
-                        <option value="meta">Meta</option>
-                        <option value="mistral">Mistral AI</option>
-                        <option value="cohere">Cohere</option>
+                        <option value="anthropic">Anthropic (Claude)</option>
+                        <option value="openai">OpenAI (GPT)</option>
+                        <option value="google">Google (Gemini)</option>
+                        <option value="xai">xAI (Grok)</option>
                       </select>
                     </div>
                     
                     <div>
                       <label className="block text-xs font-medium text-dark-300 mb-1.5">
                         Model
+                        <span className="ml-1 text-dark-500">(Latest: {PROVIDERS[selectedProvider]?.defaultModel})</span>
                       </label>
                       <input
                         type="text"
                         value={selectedModel}
-                        onChange={(e) => setSelectedModel(e.target.value)}
-                        placeholder="Enter model name..."
+                        onChange={(e) => onModelChange(e.target.value)}
+                        placeholder={`e.g., ${PROVIDERS[selectedProvider]?.defaultModel}`}
                         className="w-full px-3 py-2 rounded-lg bg-dark-800/50 border border-dark-700/50 text-white placeholder-dark-500 text-xs focus:border-primary-500 focus:bg-dark-800 transition-all"
                         disabled={isGenerating}
                       />
+                      <p className="mt-1 text-[10px] text-dark-500">
+                        Enter any {PROVIDERS[selectedProvider]?.name} model identifier
+                      </p>
                     </div>
                     
                     <div>
                       <label className="block text-xs font-medium text-dark-300 mb-1.5">
                         API Key
+                        {apiKeySaved && (
+                          <motion.span
+                            initial={{ opacity: 0, scale: 0.8 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            className="ml-2 inline-flex items-center gap-1 px-2 py-0.5 bg-green-500/20 text-green-400 rounded-full text-[10px]"
+                          >
+                            <Check className="w-3 h-3" />
+                            Saved
+                          </motion.span>
+                        )}
                       </label>
-                      <input
-                        type="password"
-                        value={apiKey}
-                        onChange={(e) => setApiKey(e.target.value)}
-                        placeholder="Enter your API key..."
-                        className="w-full px-3 py-2 rounded-lg bg-dark-800/50 border border-dark-700/50 text-white placeholder-dark-500 text-xs focus:border-primary-500 focus:bg-dark-800 transition-all"
-                        disabled={isGenerating}
-                      />
+                      <div className="flex gap-2">
+                        <input
+                          type="password"
+                          value={apiKey}
+                          onChange={(e) => {
+                            setApiKey(e.target.value);
+                            setApiKeySaved(false);
+                          }}
+                          placeholder={`Enter your ${PROVIDERS[selectedProvider]?.name || selectedProvider} API key...`}
+                          className="flex-1 px-3 py-2 rounded-lg bg-dark-800/50 border border-dark-700/50 text-white placeholder-dark-500 text-xs focus:border-primary-500 focus:bg-dark-800 transition-all"
+                          disabled={isGenerating}
+                        />
+                        <motion.button
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          type="button"
+                          onClick={handleSaveApiKey}
+                          disabled={isGenerating || !apiKey.trim() || apiKeySaved}
+                          className="px-3 py-2 rounded-lg bg-dark-700/50 text-white text-xs font-medium hover:bg-dark-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                        >
+                          Save
+                        </motion.button>
+                      </div>
+                      <p className="mt-1 text-[10px] text-dark-500">
+                        Your API key is stored locally in your browser
+                      </p>
                     </div>
                           </div>
                         </motion.div>

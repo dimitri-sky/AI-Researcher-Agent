@@ -14,8 +14,8 @@ const model = genAI.getGenerativeModel({
   }
 });
 
-// Mock data for development mode
-const MOCK_LATEX = `\\begin{center}
+// Mock data for demo mode
+export const MOCK_LATEX = `\\begin{center}
 \\textbf{\\Large Efficient Fine-Tuning of Large Language Models via Adaptive Low-Rank Decomposition}
 
 \\vspace{0.3cm}
@@ -224,7 +224,7 @@ Our work highlights the importance of adaptive capacity allocation in parameter-
 
 This work was supported by the National Science Foundation under Grant No. IIS-2045685 and by the Stanford Institute for Human-Centered Artificial Intelligence (HAI). We thank the anonymous reviewers for their insightful comments and suggestions. We also acknowledge computational resources provided by the Stanford Research Computing Center.`;
 
-const MOCK_PYTHON = `"""
+export const MOCK_PYTHON = `"""
 AdaLoRA: Adaptive Low-Rank Adaptation for Fine-Tuning Large Language Models
 Implementation of adaptive rank allocation with importance-based pruning
 """

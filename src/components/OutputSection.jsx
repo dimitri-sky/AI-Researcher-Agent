@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { FileText, Download, Eye, Code, Copy, Check } from 'lucide-react';
+import { FileText, Download, Eye, Code, Copy, Check, FileDown } from 'lucide-react';
 import katex from 'katex';
-import { generatePDF } from '../services/pdfService';
+import { generatePDF, exportLatex, formatLatexForCopy } from '../services/pdfService';
 
 const OutputSection = ({ paperData, currentView, onViewChange, onUpdateLatex, isMobile }) => {
   const previewRef = useRef(null);
@@ -13,44 +13,127 @@ const OutputSection = ({ paperData, currentView, onViewChange, onUpdateLatex, is
     // Remove comments
     latex = latex.replace(/%.*$/gm, '');
     
-    // Handle center environment
-    latex = latex.replace(/\\begin\{center\}([\s\S]*?)\\end\{center\}/g, '<div class="text-center my-4">$1</div>');
+    // Track section numbering for NeurIPS style
+    let sectionNum = 0;
+    let subsectionNum = 0;
+    let isAfterAbstract = false;
     
-    // Handle vspace (convert to margin)
-    latex = latex.replace(/\\vspace\{([^}]+)\}/g, (match, p1) => {
-      const size = parseFloat(p1) * 16; // Convert cm to approximate px
-      return `<div style="height: ${size}px"></div>`;
+    // Handle center environment - special handling for title/author block
+    latex = latex.replace(/\\begin\{center\}([\s\S]*?)\\end\{center\}/g, (match, content) => {
+      // Check if this is title/author block (contains Large or author affiliations)
+      if (content.includes('\\Large') || content.includes('\\textbf') || content.includes('$^{')) {
+        // Format as title/author block
+        return `<div class="text-center mb-8 pb-4 border-b-2 border-gray-300">${content}</div>`;
+      }
+      return `<div class="text-center my-4">${content}</div>`;
     });
     
-    // Handle text size commands
+    // Handle vspace (convert to margin)
+    latex = latex.replace(/\\vspace\{([^}]+)\}/g, '<div class="my-2"></div>');
+    
+    // Handle text size commands - NeurIPS style
     latex = latex.replace(/\\Large\s+/g, '<span class="text-2xl font-bold">');
-    latex = latex.replace(/\\large\s+/g, '<span class="text-xl">');
-    latex = latex.replace(/\\small\s+/g, '<span class="text-sm">');
-    latex = latex.replace(/\\normalsize\s+/g, '<span class="text-base">');
+    latex = latex.replace(/\\large\s+/g, '<span class="text-lg">');
+    latex = latex.replace(/\\small\s+/g, '<span class="text-xs">');
+    latex = latex.replace(/\\normalsize\s+/g, '<span class="text-sm">');
+    latex = latex.replace(/\\tiny\s+/g, '<span class="text-xs">');
+    latex = latex.replace(/\\huge\s+/g, '<span class="text-3xl font-bold">');
     
-    // Convert sections
-    latex = latex.replace(/\\section\*?\{([^}]+)\}/g, '<h2 class="text-2xl font-bold mt-8 mb-4 text-gray-900">$1</h2>');
-    latex = latex.replace(/\\subsection\*?\{([^}]+)\}/g, '<h3 class="text-xl font-semibold mt-6 mb-3 text-gray-800">$1</h3>');
-    latex = latex.replace(/\\subsubsection\*?\{([^}]+)\}/g, '<h4 class="text-lg font-medium mt-4 mb-2 text-gray-700">$1</h4>');
+    // Convert sections with NeurIPS-style formatting and numbering
+    latex = latex.replace(/\\section\{([^}]+)\}/g, (match, title) => {
+      sectionNum++;
+      subsectionNum = 0;
+      isAfterAbstract = true;
+      // NeurIPS uses bold, smaller text for section headers
+      return `<h2 class="text-base font-bold mt-6 mb-3 text-black">${sectionNum} &nbsp; ${title}</h2>`;
+    });
     
-    // Text formatting
-    latex = latex.replace(/\\textbf\{([^}]+)\}/g, '<strong class="font-semibold text-gray-900">$1</strong>');
-    latex = latex.replace(/\\textit\{([^}]+)\}/g, '<em class="italic text-gray-700">$1</em>');
-    latex = latex.replace(/\\emph\{([^}]+)\}/g, '<em class="italic text-gray-700">$1</em>');
+    // Handle starred sections (like Abstract, Acknowledgments)
+    latex = latex.replace(/\\section\*\{([^}]+)\}/g, (match, title) => {
+      const titleLower = title.toLowerCase();
+      if (titleLower.includes('abstract')) {
+        return `<div class="mb-6 pb-3 border-b"><h2 class="text-sm font-bold text-center mb-2 text-black">Abstract</h2><div class="text-xs text-justify text-black leading-tight">`;
+      }
+      return `<h2 class="text-base font-bold mt-6 mb-3 text-black">${title}</h2>`;
+    });
     
-    // Convert display math
+    // Close abstract div when we hit Keywords or next section
+    latex = latex.replace(/(<div class="text-xs text-justify text-black leading-tight">[\s\S]*?)(\n\\textbf\{Keywords|\\section)/g, 
+      '$1</div></div>$2');
+    
+    latex = latex.replace(/\\subsection\{([^}]+)\}/g, (match, title) => {
+      subsectionNum++;
+      return `<h3 class="text-sm font-bold mt-4 mb-2 text-black">${sectionNum}.${subsectionNum} &nbsp; ${title}</h3>`;
+    });
+    latex = latex.replace(/\\subsection\*\{([^}]+)\}/g, '<h3 class="text-sm font-bold mt-4 mb-2 text-black">$1</h3>');
+    latex = latex.replace(/\\subsubsection\{([^}]+)\}/g, '<h4 class="text-sm font-semibold mt-3 mb-2 text-black italic">$1</h4>');
+    latex = latex.replace(/\\subsubsection\*\{([^}]+)\}/g, '<h4 class="text-sm font-semibold mt-3 mb-2 text-black italic">$1</h4>');
+    latex = latex.replace(/\\paragraph\{([^}]+)\}/g, '<span class="font-bold text-black">$1.</span>');
+    
+    // Text formatting - NeurIPS style
+    latex = latex.replace(/\\textbf\{([^}]+)\}/g, '<strong class="font-bold text-black">$1</strong>');
+    latex = latex.replace(/\\textit\{([^}]+)\}/g, '<em class="italic text-black">$1</em>');
+    latex = latex.replace(/\\emph\{([^}]+)\}/g, '<em class="italic text-black">$1</em>');
+    latex = latex.replace(/\\underline\{([^}]+)\}/g, '<u class="underline text-black">$1</u>');
+    latex = latex.replace(/\\texttt\{([^}]+)\}/g, '<code class="font-mono text-xs bg-gray-50 px-0.5 text-black">$1</code>');
+    latex = latex.replace(/\\textsc\{([^}]+)\}/g, '<span class="text-xs uppercase tracking-wide text-black">$1</span>');
+    
+    // Handle itemize and enumerate environments - NeurIPS compact style
+    latex = latex.replace(/\\begin\{itemize\}([\s\S]*?)\\end\{itemize\}/g, (match, p1) => {
+      const items = p1.replace(/\\item\s*/g, '<li class="mb-1 ml-5 text-sm text-black">').trim();
+      return `<ul class="my-2 text-black list-disc">${items}</ul>`;
+    });
+    
+    latex = latex.replace(/\\begin\{enumerate\}([\s\S]*?)\\end\{enumerate\}/g, (match, p1) => {
+      const items = p1.replace(/\\item\s*/g, '<li class="mb-1 ml-5 text-sm text-black">').trim();
+      return `<ol class="my-2 text-black list-decimal">${items}</ol>`;
+    });
+    
+    // Handle tables - NeurIPS style (smaller, compact)
+    latex = latex.replace(/\\begin\{tabular\}\{[^}]+\}([\s\S]*?)\\end\{tabular\}/g, (match, p1) => {
+      let tableContent = p1.trim();
+      tableContent = tableContent.replace(/\\hline/g, '');
+      const rows = tableContent.split('\\\\').filter(row => row.trim());
+      const tableRows = rows.map((row, index) => {
+        const cells = row.split('&').map(cell => cell.trim());
+        const cellTag = index === 0 ? 'th' : 'td';
+        const cellClass = index === 0 ? 'font-semibold px-2 py-1 border-t-2 border-b border-black text-xs text-black' : 'px-2 py-1 text-xs text-black';
+        const cellsHtml = cells.map(cell => `<${cellTag} class="${cellClass}">${cell}</${cellTag}>`).join('');
+        return `<tr>${cellsHtml}</tr>`;
+      }).join('');
+      return `<div class="my-4 text-center"><table class="inline-block border-collapse text-black">${tableRows}</table></div>`;
+    });
+    
+    // Handle citations - NeurIPS style [1,2,3]
+    latex = latex.replace(/\\\[(\d+)\]/g, '<sup class="text-xs text-black">[$1]</sup>');
+    latex = latex.replace(/\\cite\{([^}]+)\}/g, '<sup class="text-xs text-black">[$1]</sup>');
+    
+    // Handle verbatim/code blocks - NeurIPS compact style
+    latex = latex.replace(/\\begin\{verbatim\}([\s\S]*?)\\end\{verbatim\}/g, 
+      '<pre class="bg-gray-50 p-2 overflow-x-auto font-mono text-xs my-2 text-black border-l-2 border-gray-300"><code class="text-black">$1</code></pre>');
+    
+    // Convert display math - NeurIPS style (centered, no background)
     latex = latex.replace(/\$\$(.*?)\$\$/gs, (match, p1) => {
-      return `<div class="math-display my-6 overflow-x-auto text-gray-900">${p1}</div>`;
+      return `<div class="math-display my-3 overflow-x-auto text-center text-black">${p1}</div>`;
     });
     
     // Convert inline math
-    latex = latex.replace(/\$([^\$]+)\$/g, '<span class="math-inline text-gray-900">$1</span>');
+    latex = latex.replace(/\$([^\$]+)\$/g, '<span class="math-inline text-black">$1</span>');
     
-    // Paragraphs
+    // Handle quad spacing
+    latex = latex.replace(/\\quad/g, '&nbsp;&nbsp;&nbsp;&nbsp;');
+    latex = latex.replace(/\\qquad/g, '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;');
+    
+    // Handle Keywords specially
+    latex = latex.replace(/\\textbf\{Keywords:\}(.*?)(?=\\section|\\subsection|<h2|<h3|$)/gs, (match, keywords) => {
+      return `<div class="mt-3 mb-4"><span class="font-bold text-xs text-black">Keywords:</span><span class="text-xs text-black italic">${keywords.trim()}</span></div>`;
+    });
+    
+    // Paragraphs - NeurIPS style (smaller text, tight spacing, justified)
     latex = latex.split('\n\n').map(para => {
       para = para.trim();
-      if (para && !para.startsWith('<h') && !para.includes('math-display') && !para.startsWith('<div')) {
-        return `<p class="mb-4 text-gray-700 leading-relaxed">${para}</p>`;
+      if (para && !para.startsWith('<') && !para.includes('math-display')) {
+        return `<p class="mb-3 text-black text-sm leading-tight text-justify">${para}</p>`;
       }
       return para;
     }).join('\n');
@@ -90,16 +173,47 @@ const OutputSection = ({ paperData, currentView, onViewChange, onUpdateLatex, is
   }, [paperData.latexContent]);
   
   const handleDownloadPDF = async () => {
-    if (!paperData.latexContent) return;
+    if (!paperData.latexContent || !previewRef.current) {
+      console.error('No paper content or preview element available');
+      alert('No paper content available to export as PDF');
+      return;
+    }
     
-    const title = paperData.title || 'research-paper';
-    await generatePDF(previewRef.current, title);
+    // Check if element has content
+    if (!previewRef.current.innerHTML || previewRef.current.innerHTML.length === 0) {
+      console.error('Preview element is empty');
+      alert('Paper preview is empty. Please wait for the paper to render.');
+      return;
+    }
+    
+    try {
+      const title = paperData.title || 'research-paper';
+      console.log('Starting PDF generation for:', title);
+      console.log('Preview element:', previewRef.current);
+      console.log('Preview content length:', previewRef.current.innerHTML.length);
+      
+      // Wait a moment for KaTeX to finish rendering
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      await generatePDF(previewRef.current, title);
+      console.log('PDF generation completed successfully');
+    } catch (error) {
+      console.error('PDF generation error:', error);
+      alert('Failed to generate PDF: ' + error.message + '\nCheck console for details.');
+    }
   };
   
   const handleCopyLatex = () => {
-    navigator.clipboard.writeText(editedLatex || paperData.latexContent);
+    const latexToCopy = formatLatexForCopy(editedLatex || paperData.latexContent);
+    navigator.clipboard.writeText(latexToCopy);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+  
+  const handleDownloadLatex = async () => {
+    if (!paperData.latexContent) return;
+    const title = paperData.title || 'research-paper';
+    await exportLatex(editedLatex || paperData.latexContent, title);
   };
   
   return (
@@ -135,9 +249,9 @@ const OutputSection = ({ paperData, currentView, onViewChange, onUpdateLatex, is
             </div>
           </div>
           
-          {/* Right side: Action button + View toggle */}
+          {/* Right side: Action buttons + View toggle */}
           <div className="flex items-center gap-2">
-            {/* Download PDF or Copy button - only show when paper exists */}
+            {/* Download/Copy buttons - only show when paper exists */}
             {paperData.latexContent && (
               <>
                 {currentView === 'preview' ? (
@@ -150,24 +264,42 @@ const OutputSection = ({ paperData, currentView, onViewChange, onUpdateLatex, is
                       background: 'transparent',
                       color: '#E6EDF3'
                     }}
+                    title="Download as PDF"
                   >
                     <Download className="w-3.5 h-3.5" />
                     PDF
                   </motion.button>
                 ) : (
-                  <motion.button
-                    whileHover={{ scale: 1.05, y: -1 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={handleCopyLatex}
-                    className="px-3.5 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-2"
-                    style={{
-                      background: 'transparent',
-                      color: '#E6EDF3'
-                    }}
-                  >
-                    {copied ? <Check className="w-3.5 h-3.5" style={{ color: '#3FB950' }} /> : <Copy className="w-3.5 h-3.5" />}
-                    {copied ? 'Copied' : 'Copy'}
-                  </motion.button>
+                  <>
+                    <motion.button
+                      whileHover={{ scale: 1.05, y: -1 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={handleCopyLatex}
+                      className="px-3.5 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-2"
+                      style={{
+                        background: 'transparent',
+                        color: '#E6EDF3'
+                      }}
+                      title="Copy LaTeX code to clipboard"
+                    >
+                      {copied ? <Check className="w-3.5 h-3.5" style={{ color: '#3FB950' }} /> : <Copy className="w-3.5 h-3.5" />}
+                      {copied ? 'Copied' : 'Copy'}
+                    </motion.button>
+                    <motion.button
+                      whileHover={{ scale: 1.05, y: -1 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={handleDownloadLatex}
+                      className="px-3.5 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-2"
+                      style={{
+                        background: 'transparent',
+                        color: '#E6EDF3'
+                      }}
+                      title="Download as .tex file"
+                    >
+                      <FileDown className="w-3.5 h-3.5" />
+                      .tex
+                    </motion.button>
+                  </>
                 )}
               </>
             )}
@@ -285,12 +417,14 @@ const OutputSection = ({ paperData, currentView, onViewChange, onUpdateLatex, is
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 0.1 }}
-                className="bg-white rounded-3xl shadow-2xl p-12 max-w-4xl mx-auto font-serif border border-gray-200"
+                className="bg-white rounded-lg shadow-xl px-12 py-10 mx-auto text-black"
                 style={{
-                  boxShadow: '0 20px 60px -10px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(0, 0, 0, 0.05)'
+                  maxWidth: '700px', // NeurIPS single column width
+                  boxShadow: '0 20px 60px -10px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(0, 0, 0, 0.05)',
+                  fontFamily: 'Times New Roman, Times, serif'
                 }}
               >
-                <div ref={previewRef} />
+                <div ref={previewRef} className="text-black" style={{ columnWidth: '100%' }} />
               </motion.div>
             </div>
             

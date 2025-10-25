@@ -5,7 +5,8 @@ import OutputSection from './components/OutputSection';
 import CodeSection from './components/CodeSection';
 import Header from './components/Header';
 import MobileNavigation from './components/MobileNavigation';
-import { generatePaper, generatePythonCode, chatWithAI } from './services/geminiService';
+import { generatePaper, generatePythonCode, chatWithAI, PROVIDERS, getApiKey } from './services/aiService';
+import { MOCK_LATEX, MOCK_PYTHON } from './services/geminiService';
 import { Maximize2 } from 'lucide-react';
 
 function App() {
@@ -22,6 +23,10 @@ function App() {
   const [activeSection, setActiveSection] = useState('input'); // For mobile navigation
   const [isMobile, setIsMobile] = useState(false);
   const [currentView, setCurrentView] = useState('preview'); // 'preview' or 'latex'
+  
+  // AI Provider settings - Anthropic recommended for best code generation
+  const [selectedProvider, setSelectedProvider] = useState('anthropic'); // Default to Anthropic (claude-sonnet-4-5)
+  const [selectedModel, setSelectedModel] = useState(PROVIDERS.anthropic.defaultModel); // claude-sonnet-4-5
   
   // Panel width states with default values
   const [panelWidths, setPanelWidths] = useState(() => {
@@ -162,75 +167,205 @@ function App() {
     }
   }, [isResizing, handleMouseMove, handleMouseUp]);
 
-  const handleGeneratePaper = async (title, description) => {
+  const handleGeneratePaper = async (title, description, isDemo = false) => {
     setIsGenerating(true);
     setGenerationStep('Analyzing research topic...');
     
     try {
+      // If demo mode, use mock data
+      if (isDemo) {
+        // Clear previous chat history for new generation
+        setChatHistory([]);
+        
+        // Step 1: Starting
+        setChatHistory(prev => [
+          ...prev, 
+          { role: 'agent', content: '🚀 Initializing AI Research Agent in Demo Mode...' }
+        ]);
+        
+        await new Promise(resolve => setTimeout(resolve, 400));
+        
+        setChatHistory(prev => [
+          ...prev, 
+          { role: 'agent', content: `📚 Research Topic: "${title}"` }
+        ]);
+        
+        await new Promise(resolve => setTimeout(resolve, 300));
+        
+        setChatHistory(prev => [
+          ...prev, 
+          { role: 'agent', content: '⚡ Loading pre-generated demo paper...' }
+        ]);
+        
+        await new Promise(resolve => setTimeout(resolve, 800));
+        
+        setChatHistory(prev => [
+          ...prev, 
+          { role: 'agent', content: '✅ Research paper loaded successfully!' }
+        ]);
+        
+        await new Promise(resolve => setTimeout(resolve, 400));
+        
+        setChatHistory(prev => [
+          ...prev, 
+          { role: 'agent', content: '💻 Loading demo Python implementation...' }
+        ]);
+        
+        await new Promise(resolve => setTimeout(resolve, 600));
+        
+        setChatHistory(prev => [
+          ...prev, 
+          { role: 'agent', content: '✅ Python code loaded successfully!' }
+        ]);
+        
+        // Set the mock data
+        setPaperData({
+          title,
+          description,
+          latexContent: MOCK_LATEX,
+          pythonCode: MOCK_PYTHON
+        });
+        
+        await new Promise(resolve => setTimeout(resolve, 300));
+        
+        setGenerationStep('Complete!');
+        setChatHistory(prev => [
+          ...prev, 
+          { role: 'agent', content: '🎉 Demo paper ready! This is a pre-generated example showing the system capabilities.' },
+          { role: 'agent', content: '📄 Paper: View in Preview or LaTeX mode | 💾 Download as PDF' },
+          { role: 'agent', content: '🐍 Code: Complete Python implementation with AdaLoRA algorithm' }
+        ]);
+        
+        // Auto-switch to output view on mobile
+        if (isMobile) {
+          setActiveSection('output');
+        }
+        
+        setIsGenerating(false);
+        setGenerationStep('');
+        return;
+      }
+      
+      // Normal generation with API
+      // Get API key for selected provider
+      const apiKey = getApiKey(selectedProvider);
+      if (!apiKey) {
+        throw new Error(`Please add your ${PROVIDERS[selectedProvider]?.name || selectedProvider} API key in Settings`);
+      }
+      
+      // Clear previous chat history for new generation
+      setChatHistory([]);
+      
       // Step 1: Starting
       setChatHistory(prev => [
         ...prev, 
-        { role: 'agent', content: '🚀 Initializing AI Research Agent...' }
+        { role: 'agent', content: `🚀 Initializing AI Research Agent with ${PROVIDERS[selectedProvider]?.name}...` }
       ]);
       
       await new Promise(resolve => setTimeout(resolve, 400));
       
-      // Step 2: Analyzing
+      // Step 2: Analyzing topic
       setChatHistory(prev => [
         ...prev, 
-        { role: 'agent', content: '🔍 Analyzing research topic and methodology...' }
+        { role: 'agent', content: `📚 Research Topic: "${title}"` }
+      ]);
+      
+      await new Promise(resolve => setTimeout(resolve, 300));
+      
+      setChatHistory(prev => [
+        ...prev, 
+        { role: 'agent', content: '🔍 Analyzing research domain and identifying key concepts...' }
       ]);
       
       await new Promise(resolve => setTimeout(resolve, 600));
       
-      // Step 3: Structuring
+      // Step 3: Planning paper structure
       setChatHistory(prev => [
         ...prev, 
-        { role: 'agent', content: '📋 Structuring paper sections and outline...' }
+        { role: 'agent', content: '📋 Planning paper structure: Abstract, Introduction, Methodology, Results...' }
       ]);
       
       await new Promise(resolve => setTimeout(resolve, 500));
       
-      // Step 4: Writing paper
+      // Progress callback for paper generation
+      const paperProgress = (message) => {
+        setChatHistory(prev => [...prev, { role: 'agent', content: message }]);
+      };
+      
+      // Step 4: Writing paper sections
       setGenerationStep('Writing research paper...');
       setChatHistory(prev => [
         ...prev, 
-        { role: 'agent', content: '✍️ Writing introduction and methodology...' }
+        { role: 'agent', content: '✍️ Writing Abstract and Introduction...' }
       ]);
       
-      const latexContent = await generatePaper(title, description);
+      await new Promise(resolve => setTimeout(resolve, 800));
       
-      // Step 5: Paper complete
       setChatHistory(prev => [
         ...prev, 
-        { role: 'agent', content: '✅ Research paper completed successfully!' }
+        { role: 'agent', content: '🔬 Developing Methodology section with mathematical formulations...' }
+      ]);
+      
+      const latexContent = await generatePaper(
+        selectedProvider, 
+        selectedModel, 
+        apiKey, 
+        title, 
+        description,
+        paperProgress
+      );
+      
+      setChatHistory(prev => [
+        ...prev, 
+        { role: 'agent', content: '📊 Documenting Results and Analysis sections...' }
+      ]);
+      
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      setChatHistory(prev => [
+        ...prev, 
+        { role: 'agent', content: '📝 Finalizing Discussion, Conclusion, and References...' }
       ]);
       
       await new Promise(resolve => setTimeout(resolve, 400));
       
-      // Step 6: Starting code generation
+      // Progress callback for code generation
+      const codeProgress = (message) => {
+        setChatHistory(prev => [...prev, { role: 'agent', content: message }]);
+      };
+      
+      // Step 5: Starting code generation
       setGenerationStep('Creating experiment code...');
       setChatHistory(prev => [
         ...prev, 
-        { role: 'agent', content: '💻 Generating experiment implementation...' }
+        { role: 'agent', content: '💻 Starting Python implementation...' }
       ]);
       
       await new Promise(resolve => setTimeout(resolve, 500));
       
-      // Step 7: Implementing code
       setChatHistory(prev => [
         ...prev, 
-        { role: 'agent', content: '⚙️ Implementing model architecture and training loop...' }
+        { role: 'agent', content: '🏗️ Building model architecture and data pipelines...' }
       ]);
       
-      const pythonCode = await generatePythonCode(title, description, latexContent);
+      const pythonCode = await generatePythonCode(
+        selectedProvider,
+        selectedModel,
+        apiKey,
+        title,
+        description,
+        latexContent,
+        codeProgress
+      );
       
-      // Step 8: Complete
       setChatHistory(prev => [
         ...prev, 
-        { role: 'agent', content: '✅ Python code generated successfully!' }
+        { role: 'agent', content: '🔧 Adding training loops and evaluation metrics...' }
       ]);
       
+      await new Promise(resolve => setTimeout(resolve, 400));
+      
+      // Step 6: Complete
       setPaperData({
         title,
         description,
@@ -238,12 +373,19 @@ function App() {
         pythonCode
       });
       
+      setChatHistory(prev => [
+        ...prev, 
+        { role: 'agent', content: '✨ Formatting paper for optimal readability...' }
+      ]);
+      
       await new Promise(resolve => setTimeout(resolve, 300));
       
       setGenerationStep('Complete!');
       setChatHistory(prev => [
         ...prev, 
-        { role: 'agent', content: '🎉 All done! Your paper and code are ready to review.' }
+        { role: 'agent', content: '🎉 Success! Your NeurIPS-style research paper and implementation code are ready!' },
+        { role: 'agent', content: '📄 Paper: View in Preview or LaTeX mode | 💾 Download as PDF' },
+        { role: 'agent', content: '🐍 Code: Complete Python implementation with model and experiments' }
       ]);
       
       // Auto-switch to output view on mobile
@@ -267,7 +409,20 @@ function App() {
     setChatHistory(prev => [...prev, { role: 'user', content: message }]);
     
     try {
-      const response = await chatWithAI(message, paperData.latexContent, paperData.pythonCode);
+      // Get API key for selected provider
+      const apiKey = getApiKey(selectedProvider);
+      if (!apiKey) {
+        throw new Error(`Please add your ${PROVIDERS[selectedProvider]?.name || selectedProvider} API key in Settings`);
+      }
+      
+      const response = await chatWithAI(
+        selectedProvider,
+        selectedModel,
+        apiKey,
+        message,
+        paperData.latexContent,
+        paperData.pythonCode
+      );
       
       // Check if response is code or latex
       if (response.includes('\\section') || response.includes('\\subsection')) {
@@ -303,6 +458,18 @@ function App() {
   
   const resetPanelWidths = () => {
     setPanelWidths({ left: 380, right: 450 });
+  };
+  
+  // Handler for provider change
+  const handleProviderChange = (provider) => {
+    setSelectedProvider(provider);
+    // Automatically set the default model for the new provider
+    setSelectedModel(PROVIDERS[provider]?.defaultModel || '');
+  };
+  
+  // Handler for model change
+  const handleModelChange = (model) => {
+    setSelectedModel(model);
   };
 
   return (
@@ -409,6 +576,10 @@ function App() {
             chatHistory={chatHistory}
             onSendMessage={handleChatMessage}
             isGenerating={isGenerating}
+            selectedProvider={selectedProvider}
+            selectedModel={selectedModel}
+            onProviderChange={handleProviderChange}
+            onModelChange={handleModelChange}
           />
           
           {/* Left resize handle */}
@@ -467,6 +638,10 @@ function App() {
                   onSendMessage={handleChatMessage}
                   isGenerating={isGenerating}
                   isMobile={true}
+                  selectedProvider={selectedProvider}
+                  selectedModel={selectedModel}
+                  onProviderChange={handleProviderChange}
+                  onModelChange={handleModelChange}
                 />
               </motion.div>
             )}
