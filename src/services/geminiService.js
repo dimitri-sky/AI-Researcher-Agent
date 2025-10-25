@@ -1097,8 +1097,8 @@ export async function generatePaper(title, description) {
   // In development mode, return mock data immediately
   if (import.meta.env.DEV) {
     console.log('🚀 Development mode: Using mock LaTeX paper');
-    // Simulate a small delay to make it feel realistic
-    await new Promise(resolve => setTimeout(resolve, 500));
+    // Simulate a delay to make it feel realistic
+    await new Promise(resolve => setTimeout(resolve, 1500));
     return MOCK_LATEX;
   }
 
@@ -1183,8 +1183,8 @@ export async function generatePythonCode(title, description, paperContent) {
   // In development mode, return mock data immediately
   if (import.meta.env.DEV) {
     console.log('🚀 Development mode: Using mock Python code');
-    // Simulate a small delay to make it feel realistic
-    await new Promise(resolve => setTimeout(resolve, 300));
+    // Simulate a delay to make it feel realistic
+    await new Promise(resolve => setTimeout(resolve, 1200));
     return MOCK_PYTHON;
   }
 
@@ -1234,7 +1234,7 @@ export async function chatWithAI(message, currentLatex, currentPython) {
   
   let prompt;
   if (isCodeEdit && currentPython) {
-    prompt = `You are an AI assistant helping to edit Python experiment code. The user wants to: "${message}".
+    prompt = `You are an AI Agent helping to edit Python experiment code. The user wants to: "${message}".
 
 Here is the current Python code:
 ${currentPython}
@@ -1242,7 +1242,7 @@ ${currentPython}
 Respond ONLY with the complete modified Python code (no explanations, no markdown blocks).
 Make sure the code is runnable and properly formatted.`;
   } else if (currentLatex) {
-    prompt = `You are an AI assistant helping to edit a research paper. The user wants to: "${message}".
+    prompt = `You are an AI Agent helping to edit a research paper. The user wants to: "${message}".
 
 Here is the current LaTeX source:
 ${currentLatex}

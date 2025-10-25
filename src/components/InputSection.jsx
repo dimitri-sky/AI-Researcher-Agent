@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Sparkles, MessageSquare, Bot, User, ChevronDown, ChevronUp, Upload, Github, Key } from 'lucide-react';
+import { Send, Sparkles, MessageSquare, Bot, User, ChevronDown, ChevronUp, Upload, Github, Key, Rocket } from 'lucide-react';
 
 const InputSection = ({ onGeneratePaper, chatHistory, onSendMessage, isGenerating, isMobile }) => {
   const [title, setTitle] = useState('');
@@ -58,9 +58,9 @@ const InputSection = ({ onGeneratePaper, chatHistory, onSendMessage, isGeneratin
     e.preventDefault();
     e.stopPropagation();
     if (title.trim() && description.trim()) {
-      onGeneratePaper(title, description);
-      // Collapse research input and open AI Agent after generation starts
+      // Open AI Agent section to show loading progress
       setActiveSection('agent');
+      onGeneratePaper(title, description);
     }
     // Prevent any scrolling
     if (e.target) {
@@ -101,18 +101,32 @@ const InputSection = ({ onGeneratePaper, chatHistory, onSendMessage, isGeneratin
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: 0.1 }}
-      className={`flex flex-col min-h-0 h-full border-r border-dark-800/50 bg-dark-900/50 backdrop-blur-xl ${
+      className={`flex flex-col min-h-0 h-full backdrop-blur-xl ${
         isMobile ? '' : ''
       }`}
+      style={{
+        borderRight: '1px solid rgba(30, 36, 44, 0.8)',
+        background: 'rgba(13, 17, 23, 0.6)'
+      }}
     >
       {/* Section header */}
-      <div className="px-6 py-4 border-b border-dark-800/50 min-h-[76px] flex items-center">
+      <div className="px-6 py-4 min-h-[76px] flex items-center"
+        style={{
+          borderBottom: '1px solid rgba(30, 36, 44, 0.8)'
+        }}
+      >
         <div className="flex items-center gap-3">
-          <div className="p-2 rounded-xl bg-gradient-to-br from-primary-500/20 to-primary-600/20 border border-primary-500/20">
-            <MessageSquare className="w-4 h-4 text-primary-400" />
+          <div className="p-2 rounded-xl"
+            style={{
+              background: '#000000',
+              border: '1px solid #000000',
+              boxShadow: '0 0 12px rgba(0, 0, 0, 0.5)'
+            }}
+          >
+            <MessageSquare className="w-4 h-4" style={{ color: '#FFFFFF' }} />
           </div>
           <div>
-            <h2 className="text-sm font-semibold text-white">Research Input</h2>
+            <h2 className="text-sm font-semibold" style={{ color: '#E6EDF3' }}>Research Input</h2>
           </div>
         </div>
       </div>
@@ -132,12 +146,18 @@ const InputSection = ({ onGeneratePaper, chatHistory, onSendMessage, isGeneratin
             className="w-full px-5 py-4 flex items-center justify-between text-left hover:bg-dark-800/60 transition-all group"
           >
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-xl bg-gradient-to-br from-primary-500/20 to-primary-600/20 border border-primary-500/20">
-                <MessageSquare className="w-4 h-4 text-primary-400" />
+              <div className="p-2 rounded-xl"
+                style={{
+                  background: '#000000',
+                  border: '1px solid #000000',
+                  boxShadow: '0 0 12px rgba(0, 0, 0, 0.5)'
+                }}
+              >
+                <MessageSquare className="w-4 h-4" style={{ color: '#FFFFFF' }} />
               </div>
               <div>
-                <h3 className="text-sm font-semibold text-white">Research Input</h3>
-                <p className="text-[10px] text-dark-500">Enter your topic and methodology</p>
+                <h3 className="text-sm font-semibold" style={{ color: '#E6EDF3' }}>Research Input</h3>
+                <p className="text-[10px]" style={{ color: '#6E7681' }}>Enter your topic and methodology</p>
               </div>
             </div>
             <motion.div
@@ -159,7 +179,9 @@ const InputSection = ({ onGeneratePaper, chatHistory, onSendMessage, isGeneratin
               >
                 <form onSubmit={handleSubmit} className="p-5 space-y-4">
                   <div className="space-y-1.5">
-                    <label htmlFor="title" className="block text-xs font-semibold text-gray-300 mb-2 tracking-wide">
+                    <label htmlFor="title" className="block text-xs font-semibold mb-2 tracking-wide"
+                      style={{ color: '#9BA3AF' }}
+                    >
                       Research Topic
                     </label>
             <div className="relative group">
@@ -169,7 +191,14 @@ const InputSection = ({ onGeneratePaper, chatHistory, onSendMessage, isGeneratin
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="e.g., Efficient Fine-Tuning of Large Language Models"
-                className="w-full px-4 py-3 rounded-xl bg-dark-800/60 border-2 border-dark-700/50 text-white placeholder-dark-500 focus:border-primary-500/50 focus:bg-dark-800/80 transition-all text-sm group-hover:border-dark-600/50 backdrop-blur-sm shadow-sm"
+                className="w-full px-4 py-3 rounded-xl border-2 transition-all text-sm backdrop-blur-sm shadow-sm"
+                style={{
+                  background: 'rgba(22, 27, 34, 0.6)',
+                  borderColor: '#21262D',
+                  color: '#E6EDF3'
+                }}
+                onFocus={(e) => e.target.style.borderColor = '#2F81F7'}
+                onBlur={(e) => e.target.style.borderColor = '#21262D'}
                 disabled={isGenerating}
               />
                       <div className="absolute inset-0 -z-10 rounded-xl bg-gradient-to-r from-primary-500/0 via-primary-500/5 to-primary-600/0 opacity-0 group-focus-within:opacity-100 blur transition-opacity" />
@@ -177,7 +206,9 @@ const InputSection = ({ onGeneratePaper, chatHistory, onSendMessage, isGeneratin
                   </div>
                   
                   <div className="space-y-1.5">
-                    <label htmlFor="description" className="block text-xs font-semibold text-gray-300 mb-2 tracking-wide">
+                    <label htmlFor="description" className="block text-xs font-semibold mb-2 tracking-wide"
+                      style={{ color: '#9BA3AF' }}
+                    >
                       Focus & Methodology
                     </label>
             <div className="relative group">
@@ -187,35 +218,84 @@ const InputSection = ({ onGeneratePaper, chatHistory, onSendMessage, isGeneratin
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Fine-tuning large language models (LLMs) for downstream tasks..."
                 rows={3}
-                className="w-full px-4 py-3 rounded-xl bg-dark-800/60 border-2 border-dark-700/50 text-white placeholder-dark-500 focus:border-primary-500/50 focus:bg-dark-800/80 transition-all resize-none text-sm leading-relaxed group-hover:border-dark-600/50 backdrop-blur-sm shadow-sm"
+                className="w-full px-4 py-3 rounded-xl border-2 transition-all resize-none text-sm leading-relaxed backdrop-blur-sm shadow-sm"
+                style={{
+                  background: 'rgba(22, 27, 34, 0.6)',
+                  borderColor: '#21262D',
+                  color: '#E6EDF3'
+                }}
+                onFocus={(e) => e.target.style.borderColor = '#2F81F7'}
+                onBlur={(e) => e.target.style.borderColor = '#21262D'}
                 disabled={isGenerating}
               />
                       <div className="absolute inset-0 -z-10 rounded-xl bg-gradient-to-r from-primary-500/0 via-primary-500/5 to-primary-600/0 opacity-0 group-focus-within:opacity-100 blur transition-opacity" />
                     </div>
                   </div>
                   
-                  <motion.button
-                    whileHover={{ scale: 1.02, y: -2 }}
-                    whileTap={{ scale: 0.98 }}
-                    type="button"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      handleSubmit(e);
-                    }}
-                    disabled={isGenerating || !title.trim() || !description.trim()}
-                    className="relative w-full py-3.5 px-6 rounded-xl bg-gradient-to-r from-primary-500 via-primary-600 to-primary-700 text-white font-semibold hover:from-primary-600 hover:via-primary-700 hover:to-primary-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-primary-500/30 overflow-hidden group"
-                  >
-                    {/* Shine effect */}
-                    <motion.div
-                      className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"
-                      animate={{ x: ['-100%', '200%'] }}
-                      transition={{ duration: 3, repeat: Infinity, repeatDelay: 1 }}
-                    />
-                    <span className="relative flex items-center justify-center gap-2.5">
-                      <Sparkles className="w-4 h-4" />
-                      Generate Paper
-                    </span>
-                  </motion.button>
+                  <div className="flex gap-3">
+                    <motion.button
+                      whileHover={{ scale: 1.03, y: -1 }}
+                      whileTap={{ scale: 0.97 }}
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleSubmit(e);
+                      }}
+                      disabled={isGenerating || !title.trim() || !description.trim()}
+                      className="relative flex-1 py-2 px-4 rounded-xl font-semibold text-xs disabled:opacity-50 disabled:cursor-not-allowed transition-all overflow-hidden group"
+                      style={{
+                        background: '#000000',
+                        color: '#FFFFFF',
+                        boxShadow: '0 2px 8px -1px rgba(0, 0, 0, 0.5), inset 0 1px 0 0 rgba(255, 255, 255, 0.1)'
+                      }}
+                    >
+                      {/* Shine effect - left to right on hover */}
+                      <div
+                        className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-500 ease-out"
+                        style={{
+                          background: 'linear-gradient(to right, transparent, rgba(255, 255, 255, 0.3), transparent)'
+                        }}
+                      />
+                      <span className="relative flex items-center justify-center gap-1.5">
+                        <Rocket className="w-3 h-5" />
+                        <span className="whitespace-nowrap">Generate Paper</span>
+                      </span>
+                    </motion.button>
+                    
+                    <motion.button
+                      whileHover={{ scale: 1.03, y: -1 }}
+                      whileTap={{ scale: 0.97 }}
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        // Load demo paper with mock data - directly trigger generation
+                        const demoTitle = "Efficient Fine-Tuning of Large Language Models via Adaptive Low-Rank Decomposition";
+                        const demoDescription = "Fine-tuning large language models (LLMs) for downstream tasks remains computationally expensive due to the massive number of parameters requiring optimization. We introduce AdaLoRA (Adaptive Low-Rank Adaptation), a parameter-efficient fine-tuning method that dynamically allocates parameter budgets across weight matrices based on their importance to the task.";
+                        // Open AI Agent section to show loading progress
+                        setActiveSection('agent');
+                        onGeneratePaper(demoTitle, demoDescription);
+                      }}
+                      disabled={isGenerating}
+                      className="relative flex-1 py-2 px-4 rounded-xl font-semibold text-xs disabled:opacity-50 disabled:cursor-not-allowed transition-all overflow-hidden group"
+                      style={{
+                        background: '#000000',
+                        color: '#FFFFFF',
+                        boxShadow: '0 2px 8px -1px rgba(0, 0, 0, 0.5), inset 0 1px 0 0 rgba(255, 255, 255, 0.1)'
+                      }}
+                    >
+                      {/* Shine effect */}
+                      <motion.div
+                        className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700"
+                        style={{
+                          background: 'linear-gradient(to right, transparent, rgba(255, 255, 255, 0.15), transparent)'
+                        }}
+                      />
+                      <span className="relative flex items-center justify-center gap-1.5">
+                        <Sparkles className="w-3.5 h-3.5" />
+                        <span className="whitespace-nowrap">Demo Paper</span>
+                      </span>
+                    </motion.button>
+                  </div>
                 </form>
               </motion.div>
             )}
@@ -235,12 +315,18 @@ const InputSection = ({ onGeneratePaper, chatHistory, onSendMessage, isGeneratin
             className="w-full px-5 py-4 flex items-center justify-between text-left hover:bg-dark-800/60 transition-all group"
           >
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-xl bg-gradient-to-br from-purple-500/20 to-purple-600/20 border border-purple-500/20">
-                <Key className="w-4 h-4 text-purple-400" />
+              <div className="p-2 rounded-xl"
+                style={{
+                  background: '#000000',
+                  border: '1px solid #000000',
+                  boxShadow: '0 0 12px rgba(0, 0, 0, 0.5)'
+                }}
+              >
+                <Key className="w-4 h-4" style={{ color: '#FFFFFF' }} />
               </div>
               <div>
-                <h3 className="text-sm font-semibold text-white">Settings</h3>
-                <p className="text-[10px] text-dark-500">Model, repository, and files</p>
+                <h3 className="text-sm font-semibold" style={{ color: '#E6EDF3' }}>Settings</h3>
+                <p className="text-[10px]" style={{ color: '#6E7681' }}>Model, repository, and files</p>
               </div>
             </div>
             <motion.div
@@ -269,8 +355,8 @@ const InputSection = ({ onGeneratePaper, chatHistory, onSendMessage, isGeneratin
                       className="w-full px-4 py-3 flex items-center justify-between text-left hover:bg-dark-800/50 transition-all group"
                     >
                       <div className="flex items-center gap-2.5">
-                        <div className="p-1.5 rounded-lg bg-primary-500/10 group-hover:bg-primary-500/20 transition-colors">
-                          <Key className="w-3.5 h-3.5 text-primary-400" />
+                        <div className="p-1.5 rounded-lg bg-black/80 group-hover:bg-black transition-colors">
+                          <Key className="w-3.5 h-3.5 text-white" />
                         </div>
                         <span className="text-xs font-semibold text-white">Model Selection</span>
                       </div>
@@ -353,8 +439,8 @@ const InputSection = ({ onGeneratePaper, chatHistory, onSendMessage, isGeneratin
                       className="w-full px-4 py-3 flex items-center justify-between text-left hover:bg-dark-800/50 transition-all group"
                     >
                       <div className="flex items-center gap-2.5">
-                        <div className="p-1.5 rounded-lg bg-primary-500/10 group-hover:bg-primary-500/20 transition-colors">
-                          <Github className="w-3.5 h-3.5 text-primary-400" />
+                        <div className="p-1.5 rounded-lg bg-black/80 group-hover:bg-black transition-colors">
+                          <Github className="w-3.5 h-3.5 text-white" />
                         </div>
                         <span className="text-xs font-semibold text-white">GitHub Repository</span>
                       </div>
@@ -420,15 +506,15 @@ const InputSection = ({ onGeneratePaper, chatHistory, onSendMessage, isGeneratin
                       className="w-full px-4 py-3 flex items-center justify-between text-left hover:bg-dark-800/50 transition-all group"
                     >
                       <div className="flex items-center gap-2.5">
-                        <div className="p-1.5 rounded-lg bg-primary-500/10 group-hover:bg-primary-500/20 transition-colors">
-                          <Upload className="w-3.5 h-3.5 text-primary-400" />
+                        <div className="p-1.5 rounded-lg bg-black/80 group-hover:bg-black transition-colors">
+                          <Upload className="w-3.5 h-3.5 text-white" />
                         </div>
                         <span className="text-xs font-semibold text-white">Upload Files</span>
                         {uploadedFiles.length > 0 && (
                           <motion.span 
                             initial={{ scale: 0 }}
                             animate={{ scale: 1 }}
-                            className="px-2 py-0.5 bg-primary-500/20 text-primary-400 rounded-full text-[10px] font-bold border border-primary-500/30"
+                            className="px-2 py-0.5 bg-black/60 text-white rounded-full text-[10px] font-bold border border-black"
                           >
                             {uploadedFiles.length}
                           </motion.span>
@@ -466,7 +552,7 @@ const InputSection = ({ onGeneratePaper, chatHistory, onSendMessage, isGeneratin
                       whileTap={{ scale: 0.98 }}
                       type="button"
                       onClick={() => fileInputRef.current?.click()}
-                      className="w-full py-2 px-4 rounded-lg border-2 border-dashed border-dark-700/50 text-dark-400 text-xs font-medium hover:border-primary-500/50 hover:text-primary-400 transition-all flex items-center justify-center gap-2"
+                      className="w-full py-2 px-4 rounded-lg border-2 border-dashed border-dark-700/50 text-dark-400 text-xs font-medium hover:border-black hover:text-white transition-all flex items-center justify-center gap-2"
                       disabled={isGenerating}
                     >
                       <Upload className="w-3.5 h-3.5" />
@@ -518,12 +604,18 @@ const InputSection = ({ onGeneratePaper, chatHistory, onSendMessage, isGeneratin
             className="w-full px-5 py-4 flex items-center justify-between text-left hover:bg-dark-800/60 transition-all group flex-shrink-0"
           >
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-xl bg-gradient-to-br from-emerald-500/20 to-emerald-600/20 border border-emerald-500/20">
-                <Bot className="w-5 h-5 text-emerald-400" />
+              <div className="p-2 rounded-xl"
+                style={{
+                  background: '#000000',
+                  border: '1px solid #000000',
+                  boxShadow: '0 0 12px rgba(0, 0, 0, 0.5)'
+                }}
+              >
+                <Bot className="w-5 h-5" style={{ color: '#FFFFFF' }} />
               </div>
               <div>
-                <h3 className="text-sm font-semibold text-white">AI Agent</h3>
-                <p className="text-[10px] text-dark-500">I can edit your paper and code</p>
+                <h3 className="text-sm font-semibold" style={{ color: '#E6EDF3' }}>AI Agent</h3>
+                <p className="text-[10px]" style={{ color: '#6E7681' }}>I can edit your paper and code</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -547,10 +639,10 @@ const InputSection = ({ onGeneratePaper, chatHistory, onSendMessage, isGeneratin
               >
                 <div className="p-5 flex flex-col flex-1 min-h-0">
                   {/* Chat messages - dynamic height */}
-                  <div className="card rounded-xl p-4 mb-3 flex-1 min-h-[150px] overflow-y-auto custom-scrollbar backdrop-blur-sm">
+                    <div className="card rounded-xl p-4 mb-3 flex-1 min-h-[150px] overflow-y-auto scrollbar-black backdrop-blur-sm">
                     {chatHistory.length === 0 ? (
                       <div className="flex items-center justify-center h-full">
-                        <p className="text-dark-500 text-xs text-center">
+                        <p className="text-xs text-center" style={{ color: '#6E7681' }}>
                           I can edit the paper and code...
                         </p>
                       </div>
@@ -568,22 +660,30 @@ const InputSection = ({ onGeneratePaper, chatHistory, onSendMessage, isGeneratin
                               }`}
                             >
                               {message.role === 'agent' && (
-                                <div className="flex-shrink-0 w-6 h-6 rounded-lg bg-primary-500/20 flex items-center justify-center">
-                                  <Bot className="w-3 h-3 text-primary-400" />
+                                <div className="flex-shrink-0 w-6 h-6 rounded-lg flex items-center justify-center"
+                                  style={{ 
+                                    background: '#000000',
+                                    boxShadow: '0 0 8px rgba(0, 0, 0, 0.5)'
+                                  }}
+                                >
+                                  <Bot className="w-3 h-3" style={{ color: '#FFFFFF' }} />
                                 </div>
                               )}
                               <div
-                                className={`max-w-[80%] px-2.5 py-1.5 rounded-lg text-xs ${
+                                className="max-w-[80%] px-2.5 py-1.5 rounded-lg text-xs"
+                                style={
                                   message.role === 'user'
-                                    ? 'bg-primary-500 text-white'
-                                    : 'bg-dark-700/50 text-dark-200'
-                                }`}
+                                    ? { background: '#2F81F7', color: '#E6EDF3' }
+                                    : { background: 'rgba(30, 36, 44, 0.6)', color: '#9BA3AF' }
+                                }
                               >
                                 {message.content}
                               </div>
                               {message.role === 'user' && (
-                                <div className="flex-shrink-0 w-6 h-6 rounded-lg bg-dark-700 flex items-center justify-center">
-                                  <User className="w-3 h-3 text-dark-300" />
+                                <div className="flex-shrink-0 w-6 h-6 rounded-lg flex items-center justify-center"
+                                  style={{ background: '#1E242C' }}
+                                >
+                                  <User className="w-3 h-3" style={{ color: '#6E7681' }} />
                                 </div>
                               )}
                             </motion.div>
@@ -611,7 +711,13 @@ const InputSection = ({ onGeneratePaper, chatHistory, onSendMessage, isGeneratin
                       type="button"
                       onClick={() => chatFileInputRef.current?.click()}
                       disabled={isGenerating}
-                      className="p-2.5 rounded-xl bg-dark-800/60 text-dark-400 hover:bg-dark-700/60 hover:text-primary-400 border border-dark-700/50 hover:border-primary-500/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                      className="p-2.5 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                      style={{
+                        background: '#000000',
+                        border: '1px solid #000000',
+                        color: '#FFFFFF',
+                        boxShadow: '0 2px 8px -1px rgba(0, 0, 0, 0.5)'
+                      }}
                       title="Upload files"
                     >
                       <Upload className="w-4 h-4" />
@@ -623,7 +729,14 @@ const InputSection = ({ onGeneratePaper, chatHistory, onSendMessage, isGeneratin
                         value={chatInput}
                         onChange={(e) => setChatInput(e.target.value)}
                         placeholder="Ask me anything..."
-                        className="w-full px-4 py-2.5 rounded-xl bg-dark-800/60 border-2 border-dark-700/50 text-white placeholder-dark-500 focus:border-primary-500/50 focus:bg-dark-800/80 transition-all text-sm group-hover:border-dark-600/50"
+                        className="w-full px-4 py-2.5 rounded-xl border-2 transition-all text-sm"
+                        style={{
+                          background: 'rgba(22, 27, 34, 0.6)',
+                          borderColor: '#21262D',
+                          color: '#E6EDF3'
+                        }}
+                        onFocus={(e) => e.target.style.borderColor = '#2F81F7'}
+                        onBlur={(e) => e.target.style.borderColor = '#21262D'}
                         disabled={isGenerating}
                         onKeyDown={(e) => {
                           if (e.key === 'Enter') {
@@ -632,7 +745,11 @@ const InputSection = ({ onGeneratePaper, chatHistory, onSendMessage, isGeneratin
                           }
                         }}
                       />
-                      <div className="absolute inset-0 -z-10 rounded-xl bg-gradient-to-r from-primary-500/0 via-primary-500/5 to-primary-600/0 opacity-0 group-focus-within:opacity-100 blur transition-opacity" />
+                      <div className="absolute inset-0 -z-10 rounded-xl opacity-0 group-focus-within:opacity-100 blur transition-opacity"
+                        style={{
+                          background: 'linear-gradient(to right, transparent, rgba(47, 129, 247, 0.1), transparent)'
+                        }}
+                      />
                     </div>
                     
                     <motion.button
@@ -644,7 +761,12 @@ const InputSection = ({ onGeneratePaper, chatHistory, onSendMessage, isGeneratin
                         handleChatSubmit(e);
                       }}
                       disabled={isGenerating || !chatInput.trim()}
-                      className="p-2.5 rounded-xl bg-gradient-to-r from-primary-500 to-primary-600 text-white hover:from-primary-600 hover:to-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-primary-500/25"
+                      className="p-2.5 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                      style={{
+                        background: '#000000',
+                        color: '#FFFFFF',
+                        boxShadow: '0 2px 8px -1px rgba(0, 0, 0, 0.5), inset 0 1px 0 0 rgba(255, 255, 255, 0.1)'
+                      }}
                     >
                       <Send className="w-4 h-4" />
                     </motion.button>

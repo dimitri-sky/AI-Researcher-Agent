@@ -107,17 +107,31 @@ const OutputSection = ({ paperData, currentView, onViewChange, onUpdateLatex, is
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.2 }}
-      className="flex flex-col min-h-0 h-full border-r border-dark-800/50 bg-dark-900/30 backdrop-blur-xl"
+      className="flex flex-col min-h-0 h-full backdrop-blur-xl"
+      style={{
+        borderRight: '1px solid rgba(30, 36, 44, 0.8)',
+        background: 'rgba(13, 17, 23, 0.3)'
+      }}
     >
       {/* Section header */}
-      <div className="px-6 py-4 border-b border-dark-800/50 backdrop-blur-sm bg-dark-900/30 min-h-[76px] flex items-center">
+      <div className="px-6 py-4 backdrop-blur-sm min-h-[76px] flex items-center"
+        style={{
+          borderBottom: '1px solid rgba(30, 36, 44, 0.8)',
+          background: 'rgba(13, 17, 23, 0.4)'
+        }}
+      >
         <div className="flex items-center justify-between gap-4 w-full">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-xl bg-gradient-to-br from-primary-500/20 to-primary-600/20 border border-primary-500/20">
-              <FileText className="w-4 h-4 text-primary-400" />
+            <div className="p-2 rounded-xl"
+              style={{
+                background: 'rgba(47, 129, 247, 0.15)',
+                border: '1px solid rgba(47, 129, 247, 0.25)'
+              }}
+            >
+              <FileText className="w-4 h-4" style={{ color: '#3B82F6' }} />
             </div>
             <div>
-              <h2 className="text-sm font-semibold text-white">Research Paper</h2>
+              <h2 className="text-sm font-semibold" style={{ color: '#E6EDF3' }}>Research Paper</h2>
             </div>
           </div>
           
@@ -131,7 +145,11 @@ const OutputSection = ({ paperData, currentView, onViewChange, onUpdateLatex, is
                     whileHover={{ scale: 1.05, y: -1 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={handleDownloadPDF}
-                    className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white text-xs font-semibold transition-all flex items-center gap-2 shadow-lg shadow-green-500/20"
+                    className="px-3.5 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-2"
+                    style={{
+                      background: 'transparent',
+                      color: '#E6EDF3'
+                    }}
                   >
                     <Download className="w-3.5 h-3.5" />
                     PDF
@@ -141,9 +159,13 @@ const OutputSection = ({ paperData, currentView, onViewChange, onUpdateLatex, is
                     whileHover={{ scale: 1.05, y: -1 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={handleCopyLatex}
-                    className="px-3.5 py-2 rounded-xl bg-dark-800/80 hover:bg-dark-700 border border-dark-700/50 text-white text-xs font-semibold transition-all flex items-center gap-2"
+                    className="px-3.5 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-2"
+                    style={{
+                      background: 'transparent',
+                      color: '#E6EDF3'
+                    }}
                   >
-                    {copied ? <Check className="w-3.5 h-3.5 text-green-400" /> : <Copy className="w-3.5 h-3.5" />}
+                    {copied ? <Check className="w-3.5 h-3.5" style={{ color: '#3FB950' }} /> : <Copy className="w-3.5 h-3.5" />}
                     {copied ? 'Copied' : 'Copy'}
                   </motion.button>
                 )}
@@ -151,25 +173,50 @@ const OutputSection = ({ paperData, currentView, onViewChange, onUpdateLatex, is
             )}
             
             {/* View toggle */}
-            <div className="flex items-center gap-1 bg-dark-800/60 rounded-xl p-1 border border-dark-700/50">
+            <div className="flex items-center gap-1 rounded-xl p-1"
+              style={{
+                background: 'rgba(22, 27, 34, 0.6)',
+                border: '1px solid rgba(30, 36, 44, 0.8)'
+              }}
+            >
               <button
                 onClick={() => onViewChange('preview')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 ${
+                className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5"
+                style={
                   currentView === 'preview'
-                    ? 'bg-primary-500 text-white shadow-lg shadow-primary-500/30'
-                    : 'text-dark-400 hover:text-white hover:bg-dark-700/50'
-                }`}
+                    ? { 
+                        background: '#2F81F7', 
+                        color: '#E6EDF3',
+                        boxShadow: '0 4px 12px -2px rgba(47, 129, 247, 0.4)'
+                      }
+                    : { 
+                        color: '#6E7681',
+                        background: 'transparent'
+                      }
+                }
+                onMouseEnter={(e) => currentView !== 'preview' && (e.currentTarget.style.background = 'rgba(30, 36, 44, 0.6)')}
+                onMouseLeave={(e) => currentView !== 'preview' && (e.currentTarget.style.background = 'transparent')}
               >
                 <Eye className="w-3.5 h-3.5" />
                 Preview
               </button>
               <button
                 onClick={() => onViewChange('latex')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 ${
+                className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5"
+                style={
                   currentView === 'latex'
-                    ? 'bg-primary-500 text-white shadow-lg shadow-primary-500/30'
-                    : 'text-dark-400 hover:text-white hover:bg-dark-700/50'
-                }`}
+                    ? { 
+                        background: '#2F81F7', 
+                        color: '#E6EDF3',
+                        boxShadow: '0 4px 12px -2px rgba(47, 129, 247, 0.4)'
+                      }
+                    : { 
+                        color: '#6E7681',
+                        background: 'transparent'
+                      }
+                }
+                onMouseEnter={(e) => currentView !== 'latex' && (e.currentTarget.style.background = 'rgba(30, 36, 44, 0.6)')}
+                onMouseLeave={(e) => currentView !== 'latex' && (e.currentTarget.style.background = 'transparent')}
               >
                 <Code className="w-3.5 h-3.5" />
                 LaTeX
@@ -218,13 +265,13 @@ const OutputSection = ({ paperData, currentView, onViewChange, onUpdateLatex, is
               transition={{ delay: 0.2 }}
               className="text-center space-y-3"
             >
-              <h3 className="text-lg font-semibold text-white">No paper yet</h3>
-              <p className="text-dark-400 text-sm max-w-xs">
+              <h3 className="text-lg font-semibold" style={{ color: '#E6EDF3' }}>No paper yet</h3>
+              <p className="text-sm max-w-xs" style={{ color: '#6E7681' }}>
                 Your research paper will appear here after generation
               </p>
               <div className="flex items-center justify-center gap-2 pt-2">
-                <div className="w-1.5 h-1.5 rounded-full bg-primary-500/50" />
-                <p className="text-dark-600 text-xs">
+                <div className="w-1.5 h-1.5 rounded-full" style={{ background: 'rgba(47, 129, 247, 0.5)' }} />
+                <p className="text-xs" style={{ color: '#484F58' }}>
                   Enter a topic and description to begin
                 </p>
               </div>
@@ -261,11 +308,22 @@ const OutputSection = ({ paperData, currentView, onViewChange, onUpdateLatex, is
                     setEditedLatex(e.target.value);
                     onUpdateLatex(e.target.value);
                   }}
-                  className="w-full min-h-[600px] p-6 bg-dark-800/60 rounded-2xl border-2 border-dark-700/50 text-dark-200 font-mono text-sm leading-relaxed focus:border-primary-500/50 focus:bg-dark-800/80 transition-all resize-none backdrop-blur-sm shadow-inner"
+                  className="w-full min-h-[600px] p-6 rounded-2xl border-2 font-mono text-sm leading-relaxed transition-all resize-none backdrop-blur-sm shadow-inner"
+                  style={{
+                    background: 'rgba(22, 27, 34, 0.6)',
+                    borderColor: '#21262D',
+                    color: '#9BA3AF',
+                    tabSize: 2
+                  }}
+                  onFocus={(e) => e.target.style.borderColor = '#2F81F7'}
+                  onBlur={(e) => e.target.style.borderColor = '#21262D'}
                   spellCheck={false}
-                  style={{ tabSize: 2 }}
                 />
-                <div className="absolute inset-0 -z-10 rounded-2xl bg-gradient-to-r from-primary-500/0 via-primary-500/5 to-primary-600/0 opacity-0 group-focus-within:opacity-100 blur transition-opacity" />
+                <div className="absolute inset-0 -z-10 rounded-2xl opacity-0 group-focus-within:opacity-100 blur transition-opacity"
+                  style={{
+                    background: 'linear-gradient(to right, transparent, rgba(47, 129, 247, 0.1), transparent)'
+                  }}
+                />
               </motion.div>
             </div>
           </>

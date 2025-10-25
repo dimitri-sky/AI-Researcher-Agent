@@ -13,13 +13,19 @@ const MobileNavigation = ({ activeSection, onSectionChange, hasContent }) => {
     <motion.nav
       initial={{ y: 100 }}
       animate={{ y: 0 }}
-      className="fixed bottom-0 left-0 right-0 bg-dark-900/98 backdrop-blur-2xl border-t border-dark-800/50 z-50 safe-area-bottom"
+      className="fixed bottom-0 left-0 right-0 backdrop-blur-2xl z-50 safe-area-bottom"
       style={{
-        boxShadow: '0 -4px 24px -2px rgba(0, 0, 0, 0.4), 0 -1px 0 0 rgba(59, 130, 246, 0.1)'
+        background: 'rgba(13, 17, 23, 0.98)',
+        borderTop: '1px solid rgba(30, 36, 44, 0.8)',
+        boxShadow: '0 -4px 24px -2px rgba(0, 0, 0, 0.5), 0 -1px 0 0 rgba(47, 129, 247, 0.15)'
       }}
     >
       {/* Subtle gradient line on top */}
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary-500/30 to-transparent" />
+      <div className="absolute top-0 left-0 right-0 h-px"
+        style={{
+          background: 'linear-gradient(to right, transparent, rgba(47, 129, 247, 0.3), transparent)'
+        }}
+      />
       
       <div className="flex justify-around items-center py-3 px-4 max-w-2xl mx-auto">
         {sections.map((section) => {
@@ -43,46 +49,78 @@ const MobileNavigation = ({ activeSection, onSectionChange, hasContent }) => {
               {isActive && (
                 <motion.div
                   layoutId="active-bg"
-                  className="absolute inset-0 bg-gradient-to-br from-dark-800/60 to-dark-800/40 border border-dark-700/50 rounded-2xl backdrop-blur-sm"
+                  className="absolute inset-0 rounded-2xl backdrop-blur-sm"
                   transition={{ type: "spring", stiffness: 500, damping: 30 }}
                   style={{
-                    boxShadow: '0 4px 12px -2px rgba(0, 0, 0, 0.3), inset 0 1px 0 0 rgba(255, 255, 255, 0.05)'
+                    background: 'linear-gradient(135deg, rgba(22, 27, 34, 0.7) 0%, rgba(22, 27, 34, 0.5) 100%)',
+                    border: '1px solid rgba(30, 36, 44, 0.8)',
+                    boxShadow: '0 4px 12px -2px rgba(0, 0, 0, 0.4), inset 0 1px 0 0 rgba(230, 237, 243, 0.05)'
                   }}
                 />
               )}
               
               <motion.div
-                className={`relative p-2.5 rounded-xl ${
+                className="relative p-2.5 rounded-xl"
+                style={
                   isActive 
-                    ? `bg-gradient-to-br ${section.color} shadow-lg` 
-                    : 'bg-dark-800/60 border border-dark-700/50'
-                }`}
+                    ? { 
+                        background: section.id === 'input' 
+                          ? '#000000'
+                          : section.id === 'output'
+                          ? 'linear-gradient(135deg, #3B82F6, #2563eb)'
+                          : 'linear-gradient(135deg, #3FB950, #2ea043)',
+                        boxShadow: section.id === 'input'
+                          ? '0 4px 12px -2px rgba(0, 0, 0, 0.6)'
+                          : section.id === 'output'
+                          ? '0 4px 12px -2px rgba(47, 129, 247, 0.4)'
+                          : '0 4px 12px -2px rgba(63, 185, 80, 0.4)'
+                      }
+                    : { 
+                        background: 'rgba(22, 27, 34, 0.6)',
+                        border: '1px solid rgba(30, 36, 44, 0.8)'
+                      }
+                }
                 animate={isActive ? { 
                   scale: [1, 1.05, 1],
-                  boxShadow: [
-                    '0 4px 8px rgba(0, 0, 0, 0.2)',
-                    '0 8px 16px rgba(0, 0, 0, 0.3)',
-                    '0 4px 8px rgba(0, 0, 0, 0.2)'
-                  ]
+                  boxShadow: section.id === 'input'
+                    ? [
+                        '0 4px 12px -2px rgba(0, 0, 0, 0.6)',
+                        '0 8px 16px -2px rgba(0, 0, 0, 0.7)',
+                        '0 4px 12px -2px rgba(0, 0, 0, 0.6)'
+                      ]
+                    : [
+                        '0 4px 12px -2px rgba(47, 129, 247, 0.4)',
+                        '0 8px 16px -2px rgba(47, 129, 247, 0.5)',
+                        '0 4px 12px -2px rgba(47, 129, 247, 0.4)'
+                      ]
                 } : {}}
                 transition={{ duration: 0.4, repeat: Infinity, repeatDelay: 2 }}
               >
-                <Icon className={`w-5 h-5 ${isActive ? 'text-white' : 'text-dark-400'} relative z-10`} />
+                <Icon className="w-5 h-5 relative z-10" 
+                  style={{ color: isActive ? '#E6EDF3' : '#6E7681' }}
+                />
                 {isActive && (
                   <motion.div
                     animate={{ 
                       scale: [1, 1.3, 1],
-                      opacity: [0.5, 0.8, 0.5]
+                      opacity: [0.4, 0.7, 0.4]
                     }}
                     transition={{ duration: 2, repeat: Infinity }}
-                    className="absolute inset-0 rounded-xl bg-gradient-to-br from-primary-400/40 to-primary-600/40 blur-md"
+                    className="absolute inset-0 rounded-xl blur-md"
+                    style={{
+                      background: section.id === 'input'
+                        ? 'rgba(0, 0, 0, 0.5)'
+                        : section.id === 'code' 
+                        ? 'linear-gradient(135deg, rgba(63, 185, 80, 0.4), rgba(46, 160, 67, 0.4))'
+                        : 'linear-gradient(135deg, rgba(59, 130, 246, 0.4), rgba(37, 99, 235, 0.4))'
+                    }}
                   />
                 )}
               </motion.div>
               
-              <span className={`relative text-xs font-semibold ${
-                isActive ? 'text-white' : 'text-dark-400'
-              }`}>
+              <span className="relative text-xs font-semibold"
+                style={{ color: isActive ? '#E6EDF3' : '#6E7681' }}
+              >
                 {section.label}
               </span>
               
@@ -91,7 +129,8 @@ const MobileNavigation = ({ activeSection, onSectionChange, hasContent }) => {
                 <motion.div
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
-                  className="absolute -bottom-1 w-1 h-1 rounded-full bg-primary-500"
+                  className="absolute -bottom-1 w-1 h-1 rounded-full"
+                  style={{ background: '#2F81F7' }}
                 />
               )}
             </motion.button>

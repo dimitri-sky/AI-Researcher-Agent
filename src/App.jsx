@@ -6,7 +6,7 @@ import CodeSection from './components/CodeSection';
 import Header from './components/Header';
 import MobileNavigation from './components/MobileNavigation';
 import { generatePaper, generatePythonCode, chatWithAI } from './services/geminiService';
-import { Loader2, Sparkles, Maximize2 } from 'lucide-react';
+import { Maximize2 } from 'lucide-react';
 
 function App() {
   const [paperData, setPaperData] = useState({
@@ -167,24 +167,69 @@ function App() {
     setGenerationStep('Analyzing research topic...');
     
     try {
-      // Add initial chat message
+      // Step 1: Starting
       setChatHistory(prev => [
         ...prev, 
-        { role: 'agent', content: '✨ Starting research paper generation...' }
+        { role: 'agent', content: '🚀 Initializing AI Research Agent...' }
       ]);
       
-      // Generate paper
+      await new Promise(resolve => setTimeout(resolve, 400));
+      
+      // Step 2: Analyzing
+      setChatHistory(prev => [
+        ...prev, 
+        { role: 'agent', content: '🔍 Analyzing research topic and methodology...' }
+      ]);
+      
+      await new Promise(resolve => setTimeout(resolve, 600));
+      
+      // Step 3: Structuring
+      setChatHistory(prev => [
+        ...prev, 
+        { role: 'agent', content: '📋 Structuring paper sections and outline...' }
+      ]);
+      
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // Step 4: Writing paper
       setGenerationStep('Writing research paper...');
+      setChatHistory(prev => [
+        ...prev, 
+        { role: 'agent', content: '✍️ Writing introduction and methodology...' }
+      ]);
+      
       const latexContent = await generatePaper(title, description);
       
-      // Generate Python code
+      // Step 5: Paper complete
+      setChatHistory(prev => [
+        ...prev, 
+        { role: 'agent', content: '✅ Research paper completed successfully!' }
+      ]);
+      
+      await new Promise(resolve => setTimeout(resolve, 400));
+      
+      // Step 6: Starting code generation
       setGenerationStep('Creating experiment code...');
       setChatHistory(prev => [
         ...prev, 
-        { role: 'agent', content: '✅ Paper complete! Now generating code...' }
+        { role: 'agent', content: '💻 Generating experiment implementation...' }
+      ]);
+      
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // Step 7: Implementing code
+      setChatHistory(prev => [
+        ...prev, 
+        { role: 'agent', content: '⚙️ Implementing model architecture and training loop...' }
       ]);
       
       const pythonCode = await generatePythonCode(title, description, latexContent);
+      
+      // Step 8: Complete
+      setChatHistory(prev => [
+        ...prev, 
+        { role: 'agent', content: '✅ Python code generated successfully!' }
+      ]);
       
       setPaperData({
         title,
@@ -193,10 +238,12 @@ function App() {
         pythonCode
       });
       
+      await new Promise(resolve => setTimeout(resolve, 300));
+      
       setGenerationStep('Complete!');
       setChatHistory(prev => [
         ...prev, 
-        { role: 'agent', content: '✨ All done! Your paper and code are ready.' }
+        { role: 'agent', content: '🎉 All done! Your paper and code are ready to review.' }
       ]);
       
       // Auto-switch to output view on mobile
@@ -259,17 +306,20 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-dark-950 via-dark-900 to-dark-950 relative overflow-hidden">
+    <div className="min-h-screen bg-dark-900 relative overflow-hidden">
       {/* Enhanced animated background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {/* Primary gradient orbs */}
         <motion.div 
-          className="absolute top-20 -left-20 w-[500px] h-[500px] bg-gradient-to-br from-primary-500/15 via-primary-600/10 to-transparent rounded-full blur-3xl"
+          className="absolute top-20 -left-20 w-[500px] h-[500px] rounded-full blur-3xl"
+          style={{
+            background: 'radial-gradient(circle, rgba(47, 129, 247, 0.08) 0%, rgba(47, 129, 247, 0.04) 50%, transparent 100%)'
+          }}
           animate={{ 
             x: [0, 50, 0],
             y: [0, 30, 0],
             scale: [1, 1.1, 1],
-            opacity: [0.3, 0.5, 0.3]
+            opacity: [0.4, 0.6, 0.4]
           }}
           transition={{ 
             duration: 8, 
@@ -278,12 +328,15 @@ function App() {
           }}
         />
         <motion.div 
-          className="absolute bottom-20 -right-20 w-[600px] h-[600px] bg-gradient-to-tl from-primary-600/15 via-primary-500/10 to-transparent rounded-full blur-3xl"
+          className="absolute bottom-20 -right-20 w-[600px] h-[600px] rounded-full blur-3xl"
+          style={{
+            background: 'radial-gradient(circle, rgba(47, 129, 247, 0.08) 0%, rgba(37, 99, 235, 0.04) 50%, transparent 100%)'
+          }}
           animate={{ 
             x: [0, -40, 0],
             y: [0, -50, 0],
             scale: [1, 1.15, 1],
-            opacity: [0.3, 0.5, 0.3]
+            opacity: [0.4, 0.6, 0.4]
           }}
           transition={{ 
             duration: 10, 
@@ -293,10 +346,13 @@ function App() {
           }}
         />
         <motion.div 
-          className="absolute top-1/2 left-1/3 w-[700px] h-[700px] bg-gradient-radial from-primary-400/8 to-transparent rounded-full blur-3xl"
+          className="absolute top-1/2 left-1/3 w-[700px] h-[700px] rounded-full blur-3xl"
+          style={{
+            background: 'radial-gradient(circle, rgba(47, 129, 247, 0.06) 0%, transparent 70%)'
+          }}
           animate={{ 
             scale: [1, 1.2, 1],
-            opacity: [0.2, 0.4, 0.2],
+            opacity: [0.3, 0.5, 0.3],
             rotate: [0, 90, 0]
           }}
           transition={{ 
@@ -306,24 +362,14 @@ function App() {
           }}
         />
         
-        {/* Accent colors */}
-        <motion.div 
-          className="absolute top-1/3 right-1/4 w-[400px] h-[400px] bg-gradient-to-br from-purple-500/10 to-transparent rounded-full blur-3xl"
-          animate={{ 
-            x: [0, -30, 0],
-            y: [0, 40, 0],
-            opacity: [0.2, 0.35, 0.2]
-          }}
-          transition={{ 
-            duration: 12, 
-            repeat: Infinity,
-            ease: "easeInOut",
-            delay: 2
+        {/* Grid overlay with new colors */}
+        <div className="absolute inset-0 opacity-30"
+          style={{
+            backgroundImage: 'linear-gradient(rgba(48, 54, 61, 0.4) 1px, transparent 1px), linear-gradient(90deg, rgba(48, 54, 61, 0.4) 1px, transparent 1px)',
+            backgroundSize: '100px 100px',
+            maskImage: 'radial-gradient(ellipse 80% 50% at 50% 50%, black, transparent)'
           }}
         />
-        
-        {/* Grid overlay */}
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(59,130,246,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(59,130,246,0.03)_1px,transparent_1px)] bg-[size:100px_100px] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_50%,black,transparent)]" />
       </div>
 
       {/* Main content */}
@@ -336,130 +382,15 @@ function App() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={resetPanelWidths}
-            className="fixed bottom-6 right-6 p-3 bg-dark-800/80 hover:bg-dark-700 rounded-xl border border-dark-700/50 text-white z-30 backdrop-blur-sm shadow-xl group"
+            className="fixed bottom-6 right-6 p-3 bg-dark-800 hover:bg-dark-700 rounded-xl border border-dark-500 z-30 backdrop-blur-sm shadow-xl group"
+            style={{ color: '#E6EDF3' }}
             title="Reset panel sizes"
           >
-            <Maximize2 className="w-4 h-4 group-hover:text-primary-400 transition-colors" />
+            <Maximize2 className="w-4 h-4 group-hover:text-primary-500 transition-colors" />
           </motion.button>
         )}
         
-        {/* Enhanced loading overlay with steps */}
-        <AnimatePresence>
-          {isGenerating && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-dark-950/95 backdrop-blur-xl z-50 flex items-center justify-center"
-            >
-              {/* Background glow effect */}
-              <div className="absolute inset-0 flex items-center justify-center">
-                <motion.div
-                  animate={{ 
-                    scale: [1, 1.3, 1],
-                    opacity: [0.1, 0.2, 0.1]
-                  }}
-                  transition={{ duration: 3, repeat: Infinity }}
-                  className="w-[600px] h-[600px] bg-primary-500 rounded-full blur-[120px]"
-                />
-              </div>
-              
-              <motion.div
-                initial={{ scale: 0.9, opacity: 0, y: 30 }}
-                animate={{ scale: 1, opacity: 1, y: 0 }}
-                exit={{ scale: 0.9, opacity: 0, y: 30 }}
-                transition={{ type: "spring", damping: 20 }}
-                className="relative glass-dark rounded-3xl p-12 flex flex-col items-center gap-8 max-w-md w-full mx-4 shadow-2xl"
-              >
-                {/* Spinner with glow */}
-                <div className="relative">
-                  <motion.div
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                    className="w-20 h-20 rounded-full border-4 border-dark-700/50"
-                    style={{
-                      borderTopColor: '#3b82f6',
-                      borderRightColor: '#3b82f6',
-                    }}
-                  />
-                  <motion.div
-                    animate={{ 
-                      scale: [1, 1.2, 1],
-                      opacity: [0.5, 0.8, 0.5]
-                    }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                    className="absolute inset-0 rounded-full bg-primary-500/20 blur-xl"
-                  />
-                  {/* Center icon */}
-                  <motion.div
-                    animate={{ 
-                      scale: [1, 1.1, 1],
-                      rotate: [0, 5, -5, 0]
-                    }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                    className="absolute inset-0 flex items-center justify-center"
-                  >
-                    <Sparkles className="w-8 h-8 text-primary-400" />
-                  </motion.div>
-                </div>
-                
-                <div className="text-center space-y-4 w-full">
-                  <motion.p
-                    key={generationStep}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="text-white text-lg font-semibold"
-                  >
-                    {generationStep}
-                  </motion.p>
-                  
-                  {/* Progress bar */}
-                  <div className="w-full h-1.5 bg-dark-800 rounded-full overflow-hidden">
-                    <motion.div
-                      animate={{ 
-                        x: ['-100%', '100%'],
-                      }}
-                      transition={{ 
-                        duration: 2, 
-                        repeat: Infinity,
-                        ease: "easeInOut"
-                      }}
-                      className="h-full w-1/3 bg-gradient-to-r from-transparent via-primary-500 to-transparent"
-                    />
-                  </div>
-                  
-                  <div className="flex items-center justify-center gap-2 text-dark-400 text-sm">
-                    <motion.div
-                      animate={{ scale: [1, 1.2, 1] }}
-                      transition={{ duration: 1.5, repeat: Infinity }}
-                      className="w-2 h-2 rounded-full bg-primary-500"
-                    />
-                    <span>This may take 30-60 seconds</span>
-                  </div>
-                </div>
-                
-                {/* Step indicators */}
-                <div className="flex items-center gap-2 pt-2">
-                  {[0, 1, 2].map((index) => (
-                    <motion.div
-                      key={index}
-                      animate={{
-                        scale: [1, 1.3, 1],
-                        opacity: [0.3, 1, 0.3]
-                      }}
-                      transition={{ 
-                        duration: 1.5, 
-                        repeat: Infinity,
-                        delay: index * 0.2
-                      }}
-                      className="w-2.5 h-2.5 rounded-full bg-gradient-to-br from-primary-400 to-primary-600"
-                    />
-                  ))}
-                </div>
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {/* Loading overlay removed - progress now shows in AI Chat */}
         
         {/* Desktop layout - 3 columns with resizable panels */}
         <div 
@@ -482,11 +413,14 @@ function App() {
           
           {/* Left resize handle */}
           <div
-            className={`absolute top-0 bottom-0 w-1 cursor-col-resize z-20 ${
-              isResizing === 'left' ? 'bg-primary-500/50 w-1' : 'bg-transparent hover:bg-primary-500/30'
-            }`}
-            style={{ left: `${panelWidths.left - 1}px` }}
+            className="absolute top-0 bottom-0 w-1 cursor-col-resize z-20 transition-colors"
+            style={{ 
+              left: `${panelWidths.left - 1}px`,
+              background: isResizing === 'left' ? 'rgba(47, 129, 247, 0.6)' : 'transparent'
+            }}
             onMouseDown={() => handleMouseDown('left')}
+            onMouseEnter={(e) => !isResizing && (e.target.style.background = 'rgba(47, 129, 247, 0.4)')}
+            onMouseLeave={(e) => !isResizing && (e.target.style.background = 'transparent')}
             title="Drag to resize (min: 280px, max: 800px)"
           />
           
@@ -499,11 +433,14 @@ function App() {
           
           {/* Right resize handle */}
           <div
-            className={`absolute top-0 bottom-0 w-1 cursor-col-resize z-20 ${
-              isResizing === 'right' ? 'bg-primary-500/50 w-1' : 'bg-transparent hover:bg-primary-500/30'
-            }`}
-            style={{ right: `${panelWidths.right - 1}px` }}
+            className="absolute top-0 bottom-0 w-1 cursor-col-resize z-20 transition-colors"
+            style={{ 
+              right: `${panelWidths.right - 1}px`,
+              background: isResizing === 'right' ? 'rgba(47, 129, 247, 0.6)' : 'transparent'
+            }}
             onMouseDown={() => handleMouseDown('right')}
+            onMouseEnter={(e) => !isResizing && (e.target.style.background = 'rgba(47, 129, 247, 0.4)')}
+            onMouseLeave={(e) => !isResizing && (e.target.style.background = 'transparent')}
             title="Drag to resize (min: 350px, max: 900px)"
           />
           
