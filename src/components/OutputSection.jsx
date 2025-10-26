@@ -371,7 +371,9 @@ const OutputSection = ({ paperData, currentView, onViewChange, onUpdateLatex, is
       </div>
       
       {/* Content area */}
-      <div className="flex-1 overflow-y-auto custom-scrollbar">
+      <div className={`flex-1 overflow-y-auto custom-scrollbar ${
+        isMobile ? 'pb-20' : ''
+      }`}>
         {!paperData.latexContent ? (
           <motion.div
             initial={{ opacity: 0, y: 20 }}

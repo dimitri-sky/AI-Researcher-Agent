@@ -215,7 +215,9 @@ const CodeSection = ({ pythonCode, onUpdateCode, onGenerateCode, isGenerating, h
       )}
       
       {/* Code editor/display */}
-      <div className="flex-1 overflow-y-auto custom-scrollbar">
+      <div className={`flex-1 overflow-y-auto custom-scrollbar ${
+        isMobile ? 'pb-20' : ''
+      }`}>
         {!pythonCode ? (
           <motion.div
             initial={{ opacity: 0, y: 20 }}

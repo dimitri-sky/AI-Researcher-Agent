@@ -136,7 +136,9 @@ const InputSection = ({ onGeneratePaper, chatHistory, onSendMessage, isGeneratin
       </div>
       
       {/* Scrollable content area */}
-      <div className="flex-1 overflow-y-auto custom-scrollbar p-6 flex flex-col gap-4 min-h-0">
+      <div className={`flex-1 overflow-y-auto custom-scrollbar mb-6 p-6 flex flex-col gap-4 min-h-0 ${
+        isMobile ? 'pb-20' : ''
+      }`}>
         
         {/* Research Input Section - Collapsible */}
         <motion.div
@@ -538,9 +540,13 @@ const InputSection = ({ onGeneratePaper, chatHistory, onSendMessage, isGeneratin
                 transition={{ duration: 0.3 }}
                 className="border-t border-dark-700/50 flex flex-col flex-1 min-h-0"
               >
-                <div className="p-5 flex flex-col flex-1 min-h-0">
+                <div className={`p-5 flex flex-col flex-1 min-h-0 ${
+                  isMobile ? 'pb-2' : ''
+                }`}>
                   {/* Chat messages - dynamic height */}
-                    <div className="card rounded-xl p-4 mb-3 flex-1 min-h-[150px] overflow-y-auto scrollbar-black backdrop-blur-sm">
+                    <div className={`card rounded-xl p-4 mb-3 flex-1 overflow-y-auto scrollbar-black backdrop-blur-sm ${
+                      isMobile ? 'min-h-[120px]' : 'min-h-[150px]'
+                    }`}>
                     {chatHistory.length === 0 ? (
                       <div className="flex items-center justify-center h-full">
                         <p className="text-xs text-center" style={{ color: '#6E7681' }}>
@@ -596,7 +602,9 @@ const InputSection = ({ onGeneratePaper, chatHistory, onSendMessage, isGeneratin
                   </div>
                   
                   {/* Chat input */}
-                  <form onSubmit={handleChatSubmit} className="flex gap-2 flex-shrink-0">
+                  <form onSubmit={handleChatSubmit} className={`flex gap-2 flex-shrink-0 ${
+                    isMobile ? 'pb-1' : ''
+                  }`}>
                     <input
                       ref={chatFileInputRef}
                       type="file"

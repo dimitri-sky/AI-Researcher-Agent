@@ -27,7 +27,7 @@ const MobileNavigation = ({ activeSection, onSectionChange, hasContent }) => {
         }}
       />
       
-      <div className="flex justify-around items-center py-3 px-4 max-w-2xl mx-auto">
+      <div className="flex justify-around items-center py-2 px-3 max-w-2xl mx-auto">
         {sections.map((section) => {
           const Icon = section.icon;
           const isActive = activeSection === section.id;
@@ -39,7 +39,7 @@ const MobileNavigation = ({ activeSection, onSectionChange, hasContent }) => {
               whileHover={!section.disabled ? { y: -2 } : {}}
               onClick={() => !section.disabled && onSectionChange(section.id)}
               disabled={section.disabled}
-              className={`relative flex flex-col items-center gap-1.5 px-6 py-2.5 rounded-2xl transition-all ${
+              className={`relative flex flex-col items-center gap-1 px-4 py-1.5 rounded-xl transition-all ${
                 section.disabled 
                   ? 'opacity-30 cursor-not-allowed' 
                   : 'active:scale-95'
@@ -49,18 +49,18 @@ const MobileNavigation = ({ activeSection, onSectionChange, hasContent }) => {
               {isActive && (
                 <motion.div
                   layoutId="active-bg"
-                  className="absolute inset-0 rounded-2xl backdrop-blur-sm"
+                  className="absolute inset-0 rounded-xl backdrop-blur-sm"
                   transition={{ type: "spring", stiffness: 500, damping: 30 }}
                   style={{
                     background: 'linear-gradient(135deg, rgba(22, 27, 34, 0.7) 0%, rgba(22, 27, 34, 0.5) 100%)',
                     border: '1px solid rgba(30, 36, 44, 0.8)',
-                    boxShadow: '0 4px 12px -2px rgba(0, 0, 0, 0.4), inset 0 1px 0 0 rgba(230, 237, 243, 0.05)'
+                    boxShadow: '0 2px 8px -1px rgba(0, 0, 0, 0.4), inset 0 1px 0 0 rgba(230, 237, 243, 0.05)'
                   }}
                 />
               )}
               
               <motion.div
-                className="relative p-2.5 rounded-xl"
+                className="relative p-2 rounded-lg"
                 style={
                   isActive 
                     ? { 
@@ -70,10 +70,10 @@ const MobileNavigation = ({ activeSection, onSectionChange, hasContent }) => {
                           ? 'linear-gradient(135deg, #3B82F6, #2563eb)'
                           : 'linear-gradient(135deg, #3FB950, #2ea043)',
                         boxShadow: section.id === 'input'
-                          ? '0 4px 12px -2px rgba(0, 0, 0, 0.6)'
+                          ? '0 2px 8px -1px rgba(0, 0, 0, 0.6)'
                           : section.id === 'output'
-                          ? '0 4px 12px -2px rgba(47, 129, 247, 0.4)'
-                          : '0 4px 12px -2px rgba(63, 185, 80, 0.4)'
+                          ? '0 2px 8px -1px rgba(47, 129, 247, 0.4)'
+                          : '0 2px 8px -1px rgba(63, 185, 80, 0.4)'
                       }
                     : { 
                         background: 'rgba(22, 27, 34, 0.6)',
@@ -84,19 +84,19 @@ const MobileNavigation = ({ activeSection, onSectionChange, hasContent }) => {
                   scale: [1, 1.05, 1],
                   boxShadow: section.id === 'input'
                     ? [
-                        '0 4px 12px -2px rgba(0, 0, 0, 0.6)',
-                        '0 8px 16px -2px rgba(0, 0, 0, 0.7)',
-                        '0 4px 12px -2px rgba(0, 0, 0, 0.6)'
+                        '0 2px 8px -1px rgba(0, 0, 0, 0.6)',
+                        '0 4px 12px -1px rgba(0, 0, 0, 0.7)',
+                        '0 2px 8px -1px rgba(0, 0, 0, 0.6)'
                       ]
                     : [
-                        '0 4px 12px -2px rgba(47, 129, 247, 0.4)',
-                        '0 8px 16px -2px rgba(47, 129, 247, 0.5)',
-                        '0 4px 12px -2px rgba(47, 129, 247, 0.4)'
+                        '0 2px 8px -1px rgba(47, 129, 247, 0.4)',
+                        '0 4px 12px -1px rgba(47, 129, 247, 0.5)',
+                        '0 2px 8px -1px rgba(47, 129, 247, 0.4)'
                       ]
                 } : {}}
                 transition={{ duration: 0.4, repeat: Infinity, repeatDelay: 2 }}
               >
-                <Icon className="w-5 h-5 relative z-10" 
+                <Icon className="w-4 h-4 relative z-10" 
                   style={{ color: isActive ? '#E6EDF3' : '#6E7681' }}
                 />
                 {isActive && (
@@ -106,7 +106,7 @@ const MobileNavigation = ({ activeSection, onSectionChange, hasContent }) => {
                       opacity: [0.4, 0.7, 0.4]
                     }}
                     transition={{ duration: 2, repeat: Infinity }}
-                    className="absolute inset-0 rounded-xl blur-md"
+                    className="absolute inset-0 rounded-lg blur-sm"
                     style={{
                       background: section.id === 'input'
                         ? 'rgba(0, 0, 0, 0.5)'
@@ -118,7 +118,7 @@ const MobileNavigation = ({ activeSection, onSectionChange, hasContent }) => {
                 )}
               </motion.div>
               
-              <span className="relative text-xs font-semibold"
+              <span className="relative text-[10px] font-semibold"
                 style={{ color: isActive ? '#E6EDF3' : '#6E7681' }}
               >
                 {section.label}
