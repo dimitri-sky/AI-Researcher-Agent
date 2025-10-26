@@ -173,33 +173,45 @@ const OutputSection = ({ paperData, currentView, onViewChange, onUpdateLatex, is
   }, [paperData.latexContent]);
   
   const handleDownloadPDF = async () => {
-    if (!paperData.latexContent || !previewRef.current) {
-      console.error('No paper content or preview element available');
+    if (!paperData.latexContent) {
+      console.error('No paper content available');
       alert('No paper content available to export as PDF');
       return;
     }
     
-    // Check if element has content
-    if (!previewRef.current.innerHTML || previewRef.current.innerHTML.length === 0) {
-      console.error('Preview element is empty');
-      alert('Paper preview is empty. Please wait for the paper to render.');
-      return;
-    }
-    
     try {
-      const title = paperData.title || 'research-paper';
-      console.log('Starting PDF generation for:', title);
-      console.log('Preview element:', previewRef.current);
-      console.log('Preview content length:', previewRef.current.innerHTML.length);
+      // Get the complete LaTeX document with proper formatting
+      const latexContent = formatLatexForCopy(editedLatex || paperData.latexContent);
       
-      // Wait a moment for KaTeX to finish rendering
-      await new Promise(resolve => setTimeout(resolve, 500));
+      // Create a form to POST to Overleaf
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = 'https://www.overleaf.com/docs';
+      form.target = '_blank';
       
-      await generatePDF(previewRef.current, title);
-      console.log('PDF generation completed successfully');
+      // Add the encoded LaTeX content
+      const input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = 'encoded_snip';
+      input.value = encodeURIComponent(latexContent);
+      form.appendChild(input);
+      
+      // Set the TeX engine to pdflatex
+      const engineInput = document.createElement('input');
+      engineInput.type = 'hidden';
+      engineInput.name = 'engine';
+      engineInput.value = 'pdflatex';
+      form.appendChild(engineInput);
+      
+      // Append form to body, submit, and remove
+      document.body.appendChild(form);
+      form.submit();
+      document.body.removeChild(form);
+      
+      console.log('Opened paper in Overleaf');
     } catch (error) {
-      console.error('PDF generation error:', error);
-      alert('Failed to generate PDF: ' + error.message + '\nCheck console for details.');
+      console.error('Error opening in Overleaf:', error);
+      alert('Failed to open in Overleaf: ' + error.message);
     }
   };
   
