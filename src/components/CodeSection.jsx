@@ -290,33 +290,34 @@ const CodeSection = ({ pythonCode, onUpdateCode, onGenerateCode, isGenerating, h
                 />
               </div>
             ) : (
-              <div className="relative">
-                {/* Line numbers */}
-                <div className="absolute left-0 top-0 w-14 text-right pr-3 pt-6 pb-12 select-none backdrop-blur-sm"
-                  style={{
-                    background: 'rgba(13, 17, 23, 0.7)',
-                    color: '#484F58',
-                    borderRight: '1px solid rgba(30, 36, 44, 0.8)'
-                  }}
-                >
-                  {pythonCode.split('\n').map((_, i) => (
-                    <div key={i} className="font-mono text-xs leading-relaxed">
-                      {i + 1}
-                    </div>
-                  ))}
-                </div>
-                
-                {/* Code content with subtle background */}
-                <div className="pl-16 pr-6 pt-6 pb-12"
-                  style={{
-                    background: 'linear-gradient(135deg, rgba(13, 17, 23, 0.6) 0%, rgba(22, 27, 34, 0.4) 100%)'
-                  }}
-                >
-                  <pre className="font-mono text-sm leading-relaxed whitespace-pre-wrap"
-                    style={{ color: '#9BA3AF' }}
+              <div className="p-6"
+                style={{
+                  background: 'linear-gradient(135deg, rgba(13, 17, 23, 0.6) 0%, rgba(22, 27, 34, 0.4) 100%)'
+                }}
+              >
+                <div className="flex gap-3 font-mono text-sm leading-relaxed">
+                  {/* Line numbers - render inline with each line */}
+                  <div className="text-right select-none flex-shrink-0"
+                    style={{
+                      color: '#484F58',
+                      minWidth: '3rem'
+                    }}
                   >
-                    {pythonCode}
-                  </pre>
+                    {pythonCode.split('\n').map((_, i) => (
+                      <div key={i}>{i + 1}</div>
+                    ))}
+                  </div>
+                  
+                  {/* Vertical separator */}
+                  <div className="w-px flex-shrink-0"
+                    style={{
+                      background: 'rgba(30, 36, 44, 0.8)'
+                    }}
+                  />
+                  
+                  {/* Code content */}
+                  <pre className="flex-1 whitespace-pre-wrap" style={{ color: '#9BA3AF', margin: 0 }}>
+{pythonCode}</pre>
                 </div>
               </div>
             )}

@@ -10,12 +10,10 @@ const InputSection = ({ onGeneratePaper, chatHistory, onSendMessage, isGeneratin
   const chatEndRef = useRef(null);
   
   // Main sections state - only one can be open at a time
-  const [activeSection, setActiveSection] = useState('research'); // 'research', 'settings', or 'agent'
+  const [activeSection, setActiveSection] = useState('research'); // 'research' or 'agent'
   
   // Settings subsections state
   const [modelExpanded, setModelExpanded] = useState(false);
-  const [githubExpanded, setGithubExpanded] = useState(false);
-  const [filesExpanded, setFilesExpanded] = useState(false);
   
   // API Key state and management
   const [apiKey, setApiKey] = useState('');
@@ -50,12 +48,6 @@ const InputSection = ({ onGeneratePaper, chatHistory, onSendMessage, isGeneratin
     }
   };
   
-  // GitHub settings
-  const [githubRepo, setGithubRepo] = useState('');
-  
-  // File uploads
-  const [uploadedFiles, setUploadedFiles] = useState([]);
-  const fileInputRef = useRef(null);
   const chatFileInputRef = useRef(null);
   
   useEffect(() => {
@@ -72,15 +64,8 @@ const InputSection = ({ onGeneratePaper, chatHistory, onSendMessage, isGeneratin
     // Check if API key is available
     if (!hasApiKey(selectedProvider)) {
       setShowApiKeyWarning(true);
-      setActiveSection('settings');
+      setActiveSection('research');
       setModelExpanded(true);
-      // Scroll to settings if needed
-      setTimeout(() => {
-        const settingsElement = document.querySelector('#settings-section');
-        if (settingsElement) {
-          settingsElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-      }, 300);
       return;
     }
     
@@ -109,19 +94,10 @@ const InputSection = ({ onGeneratePaper, chatHistory, onSendMessage, isGeneratin
     }
   };
   
-  const handleFileUpload = (e) => {
-    const files = Array.from(e.target.files);
-    setUploadedFiles(prev => [...prev, ...files]);
-  };
-  
   const handleChatFileUpload = (e) => {
     const files = Array.from(e.target.files);
     // Handle file upload in chat - you can extend this to send files with messages
     console.log('Chat files uploaded:', files);
-  };
-  
-  const removeFile = (index) => {
-    setUploadedFiles(prev => prev.filter((_, i) => i !== index));
   };
   
   return (
@@ -185,7 +161,7 @@ const InputSection = ({ onGeneratePaper, chatHistory, onSendMessage, isGeneratin
               </div>
               <div>
                 <h3 className="text-sm font-semibold" style={{ color: '#E6EDF3' }}>Research Input</h3>
-                <p className="text-[10px]" style={{ color: '#6E7681' }}>Enter your topic and methodology</p>
+                <p className="text-[10px]" style={{ color: '#6E7681' }}>Topic, methodology, and settings</p>
               </div>
             </div>
             <motion.div
@@ -326,352 +302,191 @@ const InputSection = ({ onGeneratePaper, chatHistory, onSendMessage, isGeneratin
                       </span>
                     </motion.button>
                   </div>
-                </form>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </motion.div>
-        
-        {/* Settings Section - Collapsible */}
-        <motion.div
-          id="settings-section"
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="card rounded-2xl overflow-hidden flex-shrink-0"
-        >
-          <button
-            type="button"
-            onClick={() => setActiveSection(activeSection === 'settings' ? null : 'settings')}
-            className="w-full px-5 py-4 flex items-center justify-between text-left hover:bg-dark-800/60 transition-all group"
-          >
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-xl"
-                style={{
-                  background: '#000000',
-                  border: '1px solid #000000',
-                  boxShadow: '0 0 12px rgba(0, 0, 0, 0.5)'
-                }}
-              >
-                <Key className="w-4 h-4" style={{ color: '#FFFFFF' }} />
-              </div>
-              <div>
-                <h3 className="text-sm font-semibold" style={{ color: '#E6EDF3' }}>Settings</h3>
-                <p className="text-[10px]" style={{ color: '#6E7681' }}>Model, repository, and files</p>
-              </div>
-            </div>
-            <motion.div
-              animate={{ rotate: activeSection === 'settings' ? 180 : 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              <ChevronDown className="w-5 h-5 text-dark-400 group-hover:text-white transition-colors" />
-            </motion.div>
-          </button>
-          
-          <AnimatePresence>
-            {activeSection === 'settings' && (
-              <motion.div
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: "auto", opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                transition={{ duration: 0.3 }}
-                className="border-t border-dark-700/50"
-              >
-                <div className="p-4 space-y-3">
-                  {/* Model Selection */}
-                  <div className="bg-dark-800/30 rounded-xl overflow-hidden border border-dark-700/30">
-                    <button
-                      type="button"
-                      onClick={() => setModelExpanded(!modelExpanded)}
-                      className="w-full px-4 py-3 flex items-center justify-between text-left hover:bg-dark-800/50 transition-all group"
-                    >
-                      <div className="flex items-center gap-2.5">
-                        <div className="p-1.5 rounded-lg bg-black/80 group-hover:bg-black transition-colors">
-                          <Key className="w-3.5 h-3.5 text-white" />
-                        </div>
-                        <span className="text-xs font-semibold text-white">Model Selection</span>
-                      </div>
-                      <motion.div
-                        animate={{ rotate: modelExpanded ? 180 : 0 }}
-                        transition={{ duration: 0.3 }}
+                  
+                  {/* Settings Section - Now inside Research Input */}
+                  <div className="space-y-3 pt-3 border-t border-dark-700/30">
+                    {/* Model Selection */}
+                    <div className="bg-dark-800/30 rounded-xl overflow-hidden border border-dark-700/30">
+                      <button
+                        type="button"
+                        onClick={() => setModelExpanded(!modelExpanded)}
+                        className="w-full px-4 py-3 flex items-center justify-between text-left hover:bg-dark-800/50 transition-all group"
                       >
-                        <ChevronDown className="w-4 h-4 text-dark-400 group-hover:text-white transition-colors" />
-                      </motion.div>
-                    </button>
-                    
-                    <AnimatePresence>
-                      {modelExpanded && (
-                        <motion.div
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: "auto", opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          transition={{ duration: 0.2 }}
-                          className="border-t border-dark-700/30"
-                        >
-                          <div className="p-4 space-y-3">
-                    {/* API Key Warning */}
-                    {showApiKeyWarning && (
-                      <motion.div
-                        initial={{ opacity: 0, y: -10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="p-3 rounded-lg bg-yellow-500/10 border border-yellow-500/30"
-                      >
-                        <div className="flex items-start gap-2">
-                          <AlertCircle className="w-4 h-4 text-yellow-500 mt-0.5 flex-shrink-0" />
-                          <div>
-                            <p className="text-xs text-yellow-200 font-medium">
-                              API Key Required
-                            </p>
-                            <p className="text-xs text-yellow-300/70 mt-0.5">
-                              Please add your {PROVIDERS[selectedProvider]?.name || selectedProvider} API key below to generate papers.
-                            </p>
+                        <div className="flex items-center gap-2.5">
+                          <div className="p-1.5 rounded-lg bg-black/80 group-hover:bg-black transition-colors">
+                            <Key className="w-3.5 h-3.5 text-white" />
                           </div>
+                          <span className="text-xs font-semibold text-white">Model Selection</span>
                         </div>
-                      </motion.div>
-                    )}
-                    
-                    <div>
-                      <label className="block text-xs font-medium text-dark-300 mb-1.5">
-                        Provider
-                        {PROVIDERS[selectedProvider]?.recommended && (
-                          <span className="ml-2 px-2 py-0.5 bg-green-500/20 text-green-400 rounded-full text-[10px] font-semibold">
-                            Recommended
-                          </span>
-                        )}
-                      </label>
-                      <select
-                        value={selectedProvider}
-                        onChange={(e) => handleProviderChange(e.target.value)}
-                        className="w-full px-3 py-2 rounded-lg bg-dark-800/50 border border-dark-700/50 text-white text-xs focus:border-primary-500 focus:bg-dark-800 transition-all"
-                        disabled={isGenerating}
-                      >
-                        <option value="anthropic">Anthropic (Claude)</option>
-                        <option value="openai">OpenAI (GPT)</option>
-                        <option value="google">Google (Gemini)</option>
-                        <option value="xai">xAI (Grok)</option>
-                      </select>
-                    </div>
-                    
-                    <div>
-                      <label className="block text-xs font-medium text-dark-300 mb-1.5">
-                        Model
-                        <span className="ml-1 text-dark-500">(Latest: {PROVIDERS[selectedProvider]?.defaultModel})</span>
-                      </label>
-                      <input
-                        type="text"
-                        value={selectedModel}
-                        onChange={(e) => onModelChange(e.target.value)}
-                        placeholder={`e.g., ${PROVIDERS[selectedProvider]?.defaultModel}`}
-                        className="w-full px-3 py-2 rounded-lg bg-dark-800/50 border border-dark-700/50 text-white placeholder-dark-500 text-xs focus:border-primary-500 focus:bg-dark-800 transition-all"
-                        disabled={isGenerating}
-                      />
-                      <p className="mt-1 text-[10px] text-dark-500">
-                        Enter any {PROVIDERS[selectedProvider]?.name} model identifier
-                      </p>
-                    </div>
-                    
-                    <div>
-                      <label className="block text-xs font-medium text-dark-300 mb-1.5">
-                        API Key
-                        {apiKeySaved && (
-                          <motion.span
-                            initial={{ opacity: 0, scale: 0.8 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            className="ml-2 inline-flex items-center gap-1 px-2 py-0.5 bg-green-500/20 text-green-400 rounded-full text-[10px]"
+                        <motion.div
+                          animate={{ rotate: modelExpanded ? 180 : 0 }}
+                          transition={{ duration: 0.3 }}
+                        >
+                          <ChevronDown className="w-4 h-4 text-dark-400 group-hover:text-white transition-colors" />
+                        </motion.div>
+                      </button>
+                      
+                      <AnimatePresence>
+                        {modelExpanded && (
+                          <motion.div
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: "auto", opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{ duration: 0.2 }}
+                            className="border-t border-dark-700/30"
                           >
-                            <Check className="w-3 h-3" />
-                            Saved
-                          </motion.span>
-                        )}
-                      </label>
-                      <div className="flex gap-2">
+                            <div className="p-4 space-y-3">
+                      {/* API Key Warning */}
+                      {showApiKeyWarning && (
+                        <motion.div
+                          initial={{ opacity: 0, y: -10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className="p-3 rounded-lg bg-yellow-500/10 border border-yellow-500/30"
+                        >
+                          <div className="flex items-start gap-2">
+                            <AlertCircle className="w-4 h-4 text-yellow-500 mt-0.5 flex-shrink-0" />
+                            <div>
+                              <p className="text-xs text-yellow-200 font-medium">
+                                API Key Required
+                              </p>
+                              <p className="text-xs text-yellow-300/70 mt-0.5">
+                                Please add your {PROVIDERS[selectedProvider]?.name || selectedProvider} API key below to generate papers.
+                              </p>
+                            </div>
+                          </div>
+                        </motion.div>
+                      )}
+                      
+                      <div>
+                        <label className="block text-xs font-medium text-dark-300 mb-1.5">
+                          Provider
+                          {PROVIDERS[selectedProvider]?.recommended && (
+                            <span className="ml-2 px-2 py-0.5 bg-green-500/20 text-green-400 rounded-full text-[10px] font-semibold">
+                              Recommended
+                            </span>
+                          )}
+                        </label>
+                        <select
+                          value={selectedProvider}
+                          onChange={(e) => handleProviderChange(e.target.value)}
+                          className="w-full px-3 py-2 rounded-lg bg-dark-800/50 border border-dark-700/50 text-white text-xs focus:border-primary-500 focus:bg-dark-800 transition-all"
+                          disabled={isGenerating}
+                        >
+                          <option value="anthropic">Anthropic (Claude)</option>
+                          <option value="openai">OpenAI (GPT)</option>
+                          <option value="google">Google (Gemini)</option>
+                          <option value="xai">xAI (Grok)</option>
+                        </select>
+                      </div>
+                      
+                      <div>
+                        <label className="block text-xs font-medium text-dark-300 mb-1.5">
+                          Model
+                          <span className="ml-1 text-dark-500">(Latest: {PROVIDERS[selectedProvider]?.defaultModel})</span>
+                        </label>
                         <input
-                          type="password"
-                          value={apiKey}
-                          onChange={(e) => {
-                            setApiKey(e.target.value);
-                            setApiKeySaved(false);
-                          }}
-                          placeholder={`Enter your ${PROVIDERS[selectedProvider]?.name || selectedProvider} API key...`}
-                          className="flex-1 px-3 py-2 rounded-lg bg-dark-800/50 border border-dark-700/50 text-white placeholder-dark-500 text-xs focus:border-primary-500 focus:bg-dark-800 transition-all"
+                          type="text"
+                          value={selectedModel}
+                          onChange={(e) => onModelChange(e.target.value)}
+                          placeholder={`e.g., ${PROVIDERS[selectedProvider]?.defaultModel}`}
+                          className="w-full px-3 py-2 rounded-lg bg-dark-800/50 border border-dark-700/50 text-white placeholder-dark-500 text-xs focus:border-primary-500 focus:bg-dark-800 transition-all"
                           disabled={isGenerating}
                         />
-                        <motion.button
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                          type="button"
-                          onClick={handleSaveApiKey}
-                          disabled={isGenerating || !apiKey.trim() || apiKeySaved}
-                          className="px-3 py-2 rounded-lg bg-dark-700/50 text-white text-xs font-medium hover:bg-dark-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-                        >
-                          Save
-                        </motion.button>
+                        <p className="mt-1 text-[10px] text-dark-500">
+                          Enter any {PROVIDERS[selectedProvider]?.name} model identifier
+                        </p>
                       </div>
-                      <p className="mt-1 text-[10px] text-dark-500">
-                        Your API key is stored locally in your browser
-                      </p>
-                    </div>
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
-                  
-                  {/* GitHub Repository */}
-                  <div className="bg-dark-800/30 rounded-xl overflow-hidden border border-dark-700/30">
-                    <button
-                      type="button"
-                      onClick={() => setGithubExpanded(!githubExpanded)}
-                      className="w-full px-4 py-3 flex items-center justify-between text-left hover:bg-dark-800/50 transition-all group"
-                    >
-                      <div className="flex items-center gap-2.5">
-                        <div className="p-1.5 rounded-lg bg-black/80 group-hover:bg-black transition-colors">
-                          <Github className="w-3.5 h-3.5 text-white" />
-                        </div>
-                        <span className="text-xs font-semibold text-white">GitHub Repository</span>
-                      </div>
-                      <motion.div
-                        animate={{ rotate: githubExpanded ? 180 : 0 }}
-                        transition={{ duration: 0.3 }}
-                      >
-                        <ChevronDown className="w-4 h-4 text-dark-400 group-hover:text-white transition-colors" />
-                      </motion.div>
-                    </button>
-                    
-                    <AnimatePresence>
-                      {githubExpanded && (
-                        <motion.div
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: "auto", opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          transition={{ duration: 0.2 }}
-                          className="border-t border-dark-700/30"
-                        >
-                          <div className="p-4 space-y-3">
-                    <div>
-                      <label className="block text-xs font-medium text-dark-300 mb-1.5">
-                        Repository URL
-                      </label>
-                      <input
-                        type="text"
-                        value={githubRepo}
-                        onChange={(e) => setGithubRepo(e.target.value)}
-                        placeholder="https://github.com/username/repo"
-                        className="w-full px-3 py-2 rounded-lg bg-dark-800/50 border border-dark-700/50 text-white placeholder-dark-500 text-xs focus:border-primary-500 focus:bg-dark-800 transition-all"
-                        disabled={isGenerating}
-                      />
-                    </div>
-                    
-                    <div className="flex items-center gap-2">
-                      <div className="flex-1 border-t border-dark-700/50"></div>
-                      <span className="text-xs text-dark-500">or</span>
-                      <div className="flex-1 border-t border-dark-700/50"></div>
-                    </div>
-                    
-                    <motion.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      type="button"
-                      className="w-full py-2 px-4 rounded-lg bg-dark-700/50 text-white text-xs font-medium hover:bg-dark-700 transition-all flex items-center justify-center gap-2"
-                      disabled={isGenerating}
-                    >
-                      <Github className="w-3.5 h-3.5" />
-                      Login with GitHub
-                    </motion.button>
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
-                  
-                  {/* Upload Files */}
-                  <div className="bg-dark-800/30 rounded-xl overflow-hidden border border-dark-700/30">
-                    <button
-                      type="button"
-                      onClick={() => setFilesExpanded(!filesExpanded)}
-                      className="w-full px-4 py-3 flex items-center justify-between text-left hover:bg-dark-800/50 transition-all group"
-                    >
-                      <div className="flex items-center gap-2.5">
-                        <div className="p-1.5 rounded-lg bg-black/80 group-hover:bg-black transition-colors">
-                          <Upload className="w-3.5 h-3.5 text-white" />
-                        </div>
-                        <span className="text-xs font-semibold text-white">Upload Files</span>
-                        {uploadedFiles.length > 0 && (
-                          <motion.span 
-                            initial={{ scale: 0 }}
-                            animate={{ scale: 1 }}
-                            className="px-2 py-0.5 bg-black/60 text-white rounded-full text-[10px] font-bold border border-black"
-                          >
-                            {uploadedFiles.length}
-                          </motion.span>
-                        )}
-                      </div>
-                      <motion.div
-                        animate={{ rotate: filesExpanded ? 180 : 0 }}
-                        transition={{ duration: 0.3 }}
-                      >
-                        <ChevronDown className="w-4 h-4 text-dark-400 group-hover:text-white transition-colors" />
-                      </motion.div>
-                    </button>
-                    
-                    <AnimatePresence>
-                      {filesExpanded && (
-                        <motion.div
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: "auto", opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          transition={{ duration: 0.2 }}
-                          className="border-t border-dark-700/30"
-                        >
-                          <div className="p-4 space-y-3">
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      multiple
-                      onChange={handleFileUpload}
-                      className="hidden"
-                      disabled={isGenerating}
-                    />
-                    
-                    <motion.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      type="button"
-                      onClick={() => fileInputRef.current?.click()}
-                      className="w-full py-2 px-4 rounded-lg border-2 border-dashed border-dark-700/50 text-dark-400 text-xs font-medium hover:border-black hover:text-white transition-all flex items-center justify-center gap-2"
-                      disabled={isGenerating}
-                    >
-                      <Upload className="w-3.5 h-3.5" />
-                      Choose Files
-                    </motion.button>
-                    
-                    {uploadedFiles.length > 0 && (
-                      <div className="space-y-1.5">
-                        {uploadedFiles.map((file, index) => (
-                          <div
-                            key={index}
-                            className="flex items-center justify-between px-3 py-2 bg-dark-800/50 rounded-lg"
-                          >
-                            <span className="text-xs text-white truncate flex-1">
-                              {file.name}
-                            </span>
-                            <button
-                              type="button"
-                              onClick={() => removeFile(index)}
-                              className="ml-2 text-dark-500 hover:text-red-400 transition-colors text-xs"
+                      
+                      <div>
+                        <label className="block text-xs font-medium text-dark-300 mb-1.5">
+                          API Key
+                          {apiKeySaved && (
+                            <motion.span
+                              initial={{ opacity: 0, scale: 0.8 }}
+                              animate={{ opacity: 1, scale: 1 }}
+                              className="ml-2 inline-flex items-center gap-1 px-2 py-0.5 bg-green-500/20 text-green-400 rounded-full text-[10px]"
                             >
-                              ×
-                            </button>
-                          </div>
-                        ))}
+                              <Check className="w-3 h-3" />
+                              Saved
+                            </motion.span>
+                          )}
+                        </label>
+                        <div className="flex gap-2">
+                          <input
+                            type="password"
+                            value={apiKey}
+                            onChange={(e) => {
+                              setApiKey(e.target.value);
+                              setApiKeySaved(false);
+                            }}
+                            placeholder={`Enter your ${PROVIDERS[selectedProvider]?.name || selectedProvider} API key...`}
+                            className="flex-1 px-3 py-2 rounded-lg bg-dark-800/50 border border-dark-700/50 text-white placeholder-dark-500 text-xs focus:border-primary-500 focus:bg-dark-800 transition-all"
+                            disabled={isGenerating}
+                          />
+                          <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            type="button"
+                            onClick={handleSaveApiKey}
+                            disabled={isGenerating || !apiKey.trim() || apiKeySaved}
+                            className="px-3 py-2 rounded-lg bg-dark-700/50 text-white text-xs font-medium hover:bg-dark-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                          >
+                            Save
+                          </motion.button>
+                        </div>
+                        <p className="mt-1 text-[10px] text-dark-500">
+                          Your API key is stored locally in your browser
+                        </p>
                       </div>
-                    )}
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                    
+                    {/* GitHub Repository - Disabled */}
+                    <div className="bg-dark-800/30 rounded-xl overflow-hidden border border-dark-700/30 opacity-60">
+                      <button
+                        type="button"
+                        disabled
+                        className="w-full px-4 py-3 flex items-center justify-between text-left cursor-not-allowed"
+                      >
+                        <div className="flex items-center gap-2.5">
+                          <div className="p-1.5 rounded-lg bg-black/80">
+                            <Github className="w-3.5 h-3.5 text-white" />
                           </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-semibold text-white">GitHub Repository</span>
+                            <span className="px-2 py-0.5 bg-primary-500/20 text-primary-400 rounded-full text-[10px] font-semibold">
+                              Coming Soon
+                            </span>
+                          </div>
+                        </div>
+                      </button>
+                    </div>
+                    
+                    {/* Upload Files - Disabled */}
+                    <div className="bg-dark-800/30 rounded-xl overflow-hidden border border-dark-700/30 opacity-60">
+                      <button
+                        type="button"
+                        disabled
+                        className="w-full px-4 py-3 flex items-center justify-between text-left cursor-not-allowed"
+                      >
+                        <div className="flex items-center gap-2.5">
+                          <div className="p-1.5 rounded-lg bg-black/80">
+                            <Upload className="w-3.5 h-3.5 text-white" />
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-semibold text-white">Upload Files</span>
+                            <span className="px-2 py-0.5 bg-primary-500/20 text-primary-400 rounded-full text-[10px] font-semibold">
+                              Coming Soon
+                            </span>
+                          </div>
+                        </div>
+                      </button>
+                    </div>
                   </div>
-                </div>
+                </form>
               </motion.div>
             )}
           </AnimatePresence>
