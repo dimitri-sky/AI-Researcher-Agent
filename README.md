@@ -1,293 +1,117 @@
-# 🚀 AI Research Paper Generator v2.0
+# AI Research Paper Generator
 
-A modern, React-based web application that transforms research ideas into complete academic papers using AI. Features a stunning UI with smooth animations, responsive design, and a seamless user experience.
+Generate academic papers with matching Python implementations using Gemini, Grok, Claude, or GPT APIs. React-based web app with LaTeX rendering, interactive editing, and PDF export.
 
-![React](https://img.shields.io/badge/React-18.3-blue) ![Vite](https://img.shields.io/badge/Vite-5.4-purple) ![Tailwind](https://img.shields.io/badge/Tailwind-3.4-cyan) ![Framer Motion](https://img.shields.io/badge/Framer%20Motion-11-pink)
+## Quick Start
 
-## ✨ What's New in v2.0
-
-### 🎨 **Modern React Architecture**
-- Built with React 18 and Vite for blazing-fast performance
-- Component-based architecture for maintainability
-- State management with React hooks
-- Modular service layers for API integration
-
-### 💅 **Beautiful UI/UX**
-- **Glass morphism** effects with backdrop blur
-- **Smooth animations** using Framer Motion
-- **Gradient accents** and modern color palette
-- **Dark theme** optimized for long reading sessions
-- **Custom scrollbars** and micro-interactions
-
-### 📱 **Responsive Design**
-- **Mobile-first** approach with adaptive layouts
-- **Touch-optimized** interactions
-- **Bottom navigation** for mobile devices
-- **Seamless transitions** between sections
-
-### ⚡ **Enhanced Features**
-- **Real-time LaTeX preview** with KaTeX
-- **Syntax-highlighted** Python code editor
-- **AI chat agent** for paper editing
-- **PDF generation** with proper formatting
-- **Code export** functionality
-
-## 🛠️ Tech Stack
-
-- **Frontend Framework:** React 18 with Vite
-- **Styling:** Tailwind CSS with custom design system
-- **Animations:** Framer Motion
-- **AI Integration:** Google Gemini 2.0 Flash
-- **Math Rendering:** KaTeX
-- **PDF Generation:** jsPDF + html2canvas
-- **Icons:** Lucide React
-
-## 🚀 Getting Started
-
-### Prerequisites
-- Node.js 18+ installed
-- npm or yarn package manager
-
-### Installation
-
-1. **Clone the repository**
-```bash
-git clone https://github.com/yourusername/ai-research-paper-generator.git
-cd ai-research-paper-generator
-```
-
-2. **Install dependencies**
 ```bash
 npm install
-```
-
-3. **Start the development server**
-```bash
 npm run dev
 ```
 
-The application will open automatically at `http://localhost:3000`
+## Tech Stack
 
-### Building for Production
+- React 18 + Vite
+- Tailwind CSS + Framer Motion
+- Google Gemini, xAI Grok, Anthropic Claude, and OpenAI GPT APIs
+- KaTeX (math rendering)
+- jsPDF + html2canvas (PDF generation)
 
-```bash
-npm run build
-```
-
-The optimized build will be in the `dist` folder.
-
-## 🎯 Features
-
-### 📝 **Three-Section Layout**
-
-1. **Input & AI Agent** (Left)
-   - Research topic input with smart suggestions
-   - Description field for detailed requirements
-   - AI chat for real-time editing
-   - Conversation history
-
-2. **Research Paper** (Center)
-   - Live LaTeX preview with math rendering
-   - Toggle between preview and source code
-   - In-line editing capabilities
-   - PDF download functionality
-
-3. **Python Code** (Right)
-   - Syntax-highlighted code display
-   - Line numbers and formatting
-   - Copy and download options
-   - Edit mode for modifications
-
-### 🤖 **AI Capabilities**
-
-- **Paper Generation**: Complete academic papers in 30-60 seconds
-- **Code Implementation**: Matching Python experiments
-- **Interactive Editing**: Chat-based modifications
-- **Smart Suggestions**: Topic recommendations
-
-### 🎨 **Design System**
-
-#### Color Palette
-- **Primary**: Blue gradient (#0ea5e9 to #0284c7)
-- **Dark**: Sophisticated grays (#0f172a to #f8fafc)
-- **Accents**: Green for code, purple for AI
-
-#### Typography
-- **Sans**: Inter for UI elements
-- **Serif**: Lora for paper content
-- **Mono**: JetBrains Mono for code
-
-#### Components
-- Glass morphism cards
-- Gradient buttons with hover effects
-- Smooth transitions (200ms ease-out)
-- Custom focus states with ring effect
-
-## 📱 Mobile Experience
-
-The application adapts beautifully to mobile devices:
-
-- **Single section view** with swipe navigation
-- **Bottom tab bar** for easy thumb access
-- **Optimized touch targets** (min 44x44px)
-- **Responsive typography** and spacing
-- **Performance optimized** for mobile browsers
-
-## 🔧 Configuration
-
-### API Key Setup
-
-Currently using a demo API key. For production:
-
-1. Get your API key from [Google AI Studio](https://makersuite.google.com/app/apikey)
-2. Create `.env` file:
-```env
-VITE_GEMINI_API_KEY=your_api_key_here
-```
-3. Update `src/services/geminiService.js`:
-```javascript
-const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
-```
-
-### Customization
-
-#### Theme Colors
-Edit `tailwind.config.js` to customize the color scheme:
-```javascript
-colors: {
-  primary: {
-    // Your custom primary colors
-  }
-}
-```
-
-#### Animations
-Modify animation settings in `tailwind.config.js`:
-```javascript
-animation: {
-  'fade-in': 'fadeIn 0.5s ease-in-out',
-  // Add custom animations
-}
-```
-
-## 🏗️ Project Structure
+## Project Structure
 
 ```
 src/
-├── components/          # React components
-│   ├── Header.jsx      # Top navigation
-│   ├── InputSection.jsx # Left panel
-│   ├── OutputSection.jsx # Center panel
-│   ├── CodeSection.jsx  # Right panel
-│   └── MobileNavigation.jsx # Mobile nav
-├── services/           # API and utilities
-│   ├── geminiService.js # AI integration
-│   └── pdfService.js    # PDF generation
-├── App.jsx             # Main component
-├── main.jsx            # Entry point
-└── index.css           # Global styles
+├── components/
+│   ├── Header.jsx           # Top navigation
+│   ├── InputSection.jsx     # Topic input + AI chat
+│   ├── OutputSection.jsx    # LaTeX preview + PDF export
+│   ├── CodeSection.jsx      # Python code display
+│   └── MobileNavigation.jsx # Mobile tabs
+├── services/
+│   ├── geminiService.js     # AI API integration
+│   ├── aiService.js         # Legacy API handler
+│   └── pdfService.js        # PDF generation
+├── App.jsx                  # Main app logic
+└── main.jsx                 # Entry point
 ```
 
-## 🎯 Usage Guide
+## Core Features
 
-### Generating a Paper
+**Paper Generation**
+- Input topic + description → full paper in 30-60s
+- Automatic sections: Abstract, Introduction, Methodology, Results, Conclusion
+- LaTeX formatting with KaTeX rendering
 
-1. **Enter Topic**: Type your research topic (e.g., "Quantum Computing in ML")
-2. **Add Description**: Provide focus areas and methodology
-3. **Generate**: Click the generate button
-4. **Wait**: Paper generates in 30-60 seconds
-5. **Review**: Check the formatted preview
-6. **Download**: Export as PDF
+**AI Chat Agent**
+- Interactive editing via natural language
+- Maintains conversation context
+- Real-time content updates
 
-### Editing Content
+**Python Code**
+- Generates implementation matching paper methodology
+- Syntax highlighting
+- Export/copy functionality
 
-**Via Chat:**
-- Type requests like "Make the abstract shorter"
-- AI automatically updates the content
-- Changes reflect immediately
+**Mobile Responsive**
+- Single-section view with bottom navigation
+- Touch-optimized interactions
 
-**Direct Edit:**
-1. Switch to LaTeX/Code view
-2. Click Edit button
-3. Modify content
-4. Save changes
+## Contributing
 
-### Mobile Usage
+### Development Setup
 
-- **Swipe** or use **bottom tabs** to navigate
-- **Pinch to zoom** on paper preview
-- **Long press** to copy text
-- **Share** directly from browser
+1. Fork and clone the repo
+2. Install dependencies: `npm install`
+3. Start dev server: `npm run dev`
+4. Make changes in feature branch
+5. Test on mobile + desktop
+6. Submit PR
 
-## 🚀 Performance
+### Code Guidelines
 
-- **Lighthouse Score**: 95+ Performance
-- **First Contentful Paint**: < 0.5s
-- **Time to Interactive**: < 1s
-- **Bundle Size**: ~300KB gzipped
+- **Components:** Keep under 500 lines, extract sub-components
+- **Services:** Pure functions, no side effects in exports
+- **State:** Use React hooks, avoid prop drilling beyond 2 levels
+- **Styling:** Tailwind utility classes, avoid inline styles
+- **Accessibility:** ARIA labels on interactive elements
 
-### Optimization Techniques
-- Code splitting with React.lazy
-- Tree shaking with Vite
-- Tailwind CSS purging
-- Image optimization
-- Lazy loading for heavy components
+### Key Files
 
-## 🔐 Security Considerations
+- `geminiService.js`: AI prompt engineering + API calls
+- `App.jsx`: State management + data flow
+- `OutputSection.jsx`: LaTeX rendering logic
+- `pdfService.js`: PDF layout + formatting
 
-- API key should be backend-proxied in production
-- Input sanitization for LaTeX rendering
-- Rate limiting recommended
-- Content Security Policy headers
-- HTTPS deployment required
+### Adding Features
 
-## 🤝 Contributing
+**New AI capabilities:** Modify prompts in `geminiService.js` → `SYSTEM_PROMPT`
 
-We welcome contributions! Please:
+**UI components:** Add to `components/` → Import in `App.jsx` → Pass props
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
+**Export formats:** Extend `pdfService.js` or create new service
 
-### Development Guidelines
+### Testing Locally
 
-- Follow React best practices
-- Maintain component modularity
-- Use semantic HTML
-- Ensure accessibility (ARIA labels)
-- Test on multiple devices
-- Document new features
+- Test paper generation with various topics
+- Verify LaTeX renders correctly (especially math equations)
+- Check PDF export formatting
+- Test chat agent modifications
+- Validate mobile navigation
 
-## 📄 License
+## Known Issues
 
-MIT License - feel free to use this project for personal or commercial purposes.
+- LaTeX tables may render incorrectly in complex cases
+- PDF pagination breaks on very long papers
+- Some advanced math equations need manual LaTeX adjustment
+- Mobile keyboard overlaps input on certain devices
 
-## 🙏 Acknowledgments
+## Security Notes
 
-- Google Gemini team for the AI API
-- React and Vite communities
-- Tailwind CSS for the utility-first approach
-- Framer Motion for smooth animations
-- All open-source contributors
+- **Production:** Proxy API key through backend, don't expose in frontend
+- Sanitize user input before LaTeX rendering
+- Implement rate limiting for API calls
+- Deploy with HTTPS + CSP headers
 
-## 🐛 Known Issues
+## License
 
-- LaTeX tables may not render perfectly
-- Very long papers might have PDF pagination issues
-- Some complex math equations need manual adjustment
-- Mobile keyboard may cover input on some devices
-
-## 📮 Support
-
-For issues, questions, or suggestions:
-- Open an issue on GitHub
-- Contact: your-email@example.com
-- Documentation: [Wiki](https://github.com/yourusername/project/wiki)
-
----
-
-**Built with ❤️ using modern web technologies**
-
-*Transform ideas into academic excellence with the power of AI*
+MIT - See [LICENSE](LICENSE) file for details. Free for personal and commercial use.
