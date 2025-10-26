@@ -69,7 +69,7 @@ const Header = ({ darkMode, toggleDarkMode }) => {
           {/* Right side actions */}
           <div className="flex items-center gap-2">
             <motion.a
-              href="https://github.com"
+              href="https://github.com/dimitri-sky/AI-Researcher-Agent"
               target="_blank"
               rel="noopener noreferrer"
               whileHover={{ scale: 1.05, y: -1 }}
