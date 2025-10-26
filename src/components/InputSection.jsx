@@ -154,7 +154,7 @@ const InputSection = ({ onGeneratePaper, chatHistory, onSendMessage, isGeneratin
             <MessageSquare className="w-4 h-4" style={{ color: '#FFFFFF' }} />
           </div>
           <div>
-            <h2 className="text-sm font-semibold" style={{ color: '#E6EDF3' }}>Research Input</h2>
+            <h2 className="text-sm font-semibold" style={{ color: '#E6EDF3' }}>Research</h2>
           </div>
         </div>
       </div>

@@ -23,7 +23,7 @@ const OutputSection = ({ paperData, currentView, onViewChange, onUpdateLatex, is
       // Check if this is title/author block (contains Large or author affiliations)
       if (content.includes('\\Large') || content.includes('\\textbf') || content.includes('$^{')) {
         // Format as title/author block
-        return `<div class="text-center mb-8 pb-4 border-b-2 border-gray-300">${content}</div>`;
+        return `<div class="text-center mb-8 pb-4 border-gray-300">${content}</div>`;
       }
       return `<div class="text-center my-4">${content}</div>`;
     });
