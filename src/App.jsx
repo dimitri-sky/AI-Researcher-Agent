@@ -206,24 +206,12 @@ function App() {
         
         await new Promise(resolve => setTimeout(resolve, 400));
         
-        setChatHistory(prev => [
-          ...prev, 
-          { role: 'agent', content: '💻 Loading demo Python implementation...' }
-        ]);
-        
-        await new Promise(resolve => setTimeout(resolve, 600));
-        
-        setChatHistory(prev => [
-          ...prev, 
-          { role: 'agent', content: '✅ Python code loaded successfully!' }
-        ]);
-        
-        // Set the mock data
+        // Set the mock data - ONLY PAPER, NOT CODE
         setPaperData({
           title,
           description,
           latexContent: MOCK_LATEX,
-          pythonCode: MOCK_PYTHON
+          pythonCode: '' // Don't load code yet
         });
         
         await new Promise(resolve => setTimeout(resolve, 300));
@@ -233,7 +221,7 @@ function App() {
           ...prev, 
           { role: 'agent', content: '🎉 Demo paper ready! This is a pre-generated example showing the system capabilities.' },
           { role: 'agent', content: '📄 Paper: View in Preview or LaTeX mode | 💾 Download as PDF' },
-          { role: 'agent', content: '🐍 Code: Complete Python implementation with AdaLoRA algorithm' }
+          { role: 'agent', content: '💡 Click "Generate Code" to create the Python implementation' }
         ]);
         
         // Auto-switch to output view on mobile
@@ -329,13 +317,104 @@ function App() {
       
       await new Promise(resolve => setTimeout(resolve, 400));
       
+      // Set paper data - ONLY PAPER, NOT CODE YET
+      setPaperData({
+        title,
+        description,
+        latexContent,
+        pythonCode: '' // Don't generate code yet
+      });
+      
+      setChatHistory(prev => [
+        ...prev, 
+        { role: 'agent', content: '✨ Formatting paper for optimal readability...' }
+      ]);
+      
+      await new Promise(resolve => setTimeout(resolve, 300));
+      
+      setGenerationStep('Complete!');
+      setChatHistory(prev => [
+        ...prev, 
+        { role: 'agent', content: '🎉 Success! Your NeurIPS-style research paper is ready!' },
+        { role: 'agent', content: '📄 Paper: View in Preview or LaTeX mode | 💾 Download as PDF' },
+        { role: 'agent', content: '💡 Click "Generate Code" to create the Python implementation' }
+      ]);
+      
+      // Auto-switch to output view on mobile
+      if (isMobile) {
+        setActiveSection('output');
+      }
+      
+    } catch (error) {
+      console.error('Error generating paper:', error);
+      setChatHistory(prev => [
+        ...prev, 
+        { role: 'agent', content: `❌ Error: ${error.message}` }
+      ]);
+    } finally {
+      setIsGenerating(false);
+      setGenerationStep('');
+    }
+  };
+
+  const handleGenerateCode = async () => {
+    setIsGenerating(true);
+    setGenerationStep('Creating experiment code...');
+    
+    try {
+      // Check if we're in demo mode (no API key needed)
+      const isDemo = paperData.latexContent === MOCK_LATEX;
+      
+      if (isDemo) {
+        // Demo mode - load mock Python code
+        setChatHistory(prev => [
+          ...prev, 
+          { role: 'agent', content: '💻 Loading demo Python implementation...' }
+        ]);
+        
+        await new Promise(resolve => setTimeout(resolve, 600));
+        
+        setChatHistory(prev => [
+          ...prev, 
+          { role: 'agent', content: '✅ Python code loaded successfully!' }
+        ]);
+        
+        // Set the mock Python code
+        setPaperData(prev => ({
+          ...prev,
+          pythonCode: MOCK_PYTHON
+        }));
+        
+        await new Promise(resolve => setTimeout(resolve, 300));
+        
+        setGenerationStep('Complete!');
+        setChatHistory(prev => [
+          ...prev, 
+          { role: 'agent', content: '🐍 Code: Complete Python implementation with AdaLoRA algorithm' }
+        ]);
+        
+        // Auto-switch to code view on mobile
+        if (isMobile) {
+          setActiveSection('code');
+        }
+        
+        setIsGenerating(false);
+        setGenerationStep('');
+        return;
+      }
+      
+      // Normal generation with API
+      const apiKey = getApiKey(selectedProvider);
+      if (!apiKey) {
+        throw new Error(`Please add your ${PROVIDERS[selectedProvider]?.name || selectedProvider} API key in Settings`);
+      }
+      
       // Progress callback for code generation
       const codeProgress = (message) => {
         setChatHistory(prev => [...prev, { role: 'agent', content: message }]);
       };
       
-      // Step 5: Starting code generation
-      setGenerationStep('Creating experiment code...');
+      // Starting code generation
       setChatHistory(prev => [
         ...prev, 
         { role: 'agent', content: '💻 Starting Python implementation...' }
@@ -352,9 +431,9 @@ function App() {
         selectedProvider,
         selectedModel,
         apiKey,
-        title,
-        description,
-        latexContent,
+        paperData.title,
+        paperData.description,
+        paperData.latexContent,
         codeProgress
       );
       
@@ -365,36 +444,26 @@ function App() {
       
       await new Promise(resolve => setTimeout(resolve, 400));
       
-      // Step 6: Complete
-      setPaperData({
-        title,
-        description,
-        latexContent,
+      // Update paper data with Python code
+      setPaperData(prev => ({
+        ...prev,
         pythonCode
-      });
-      
-      setChatHistory(prev => [
-        ...prev, 
-        { role: 'agent', content: '✨ Formatting paper for optimal readability...' }
-      ]);
-      
-      await new Promise(resolve => setTimeout(resolve, 300));
+      }));
       
       setGenerationStep('Complete!');
       setChatHistory(prev => [
         ...prev, 
-        { role: 'agent', content: '🎉 Success! Your NeurIPS-style research paper and implementation code are ready!' },
-        { role: 'agent', content: '📄 Paper: View in Preview or LaTeX mode | 💾 Download as PDF' },
+        { role: 'agent', content: '🎉 Success! Python implementation is ready!' },
         { role: 'agent', content: '🐍 Code: Complete Python implementation with model and experiments' }
       ]);
       
-      // Auto-switch to output view on mobile
+      // Auto-switch to code view on mobile
       if (isMobile) {
-        setActiveSection('output');
+        setActiveSection('code');
       }
       
     } catch (error) {
-      console.error('Error generating paper:', error);
+      console.error('Error generating code:', error);
       setChatHistory(prev => [
         ...prev, 
         { role: 'agent', content: `❌ Error: ${error.message}` }
@@ -618,6 +687,9 @@ function App() {
           <CodeSection
             pythonCode={paperData.pythonCode}
             onUpdateCode={handleUpdatePython}
+            onGenerateCode={handleGenerateCode}
+            isGenerating={isGenerating}
+            hasPaper={!!paperData.latexContent}
           />
         </div>
         
@@ -675,6 +747,9 @@ function App() {
                 <CodeSection
                   pythonCode={paperData.pythonCode}
                   onUpdateCode={handleUpdatePython}
+                  onGenerateCode={handleGenerateCode}
+                  isGenerating={isGenerating}
+                  hasPaper={!!paperData.latexContent}
                   isMobile={true}
                 />
               </motion.div>

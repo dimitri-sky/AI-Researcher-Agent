@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Code2, Download, Copy, Check, Edit3, Play, Terminal } from 'lucide-react';
 
-const CodeSection = ({ pythonCode, onUpdateCode, isMobile }) => {
+const CodeSection = ({ pythonCode, onUpdateCode, onGenerateCode, isGenerating, hasPaper, isMobile }) => {
   const [copied, setCopied] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editedCode, setEditedCode] = useState(pythonCode);
@@ -72,7 +72,7 @@ const CodeSection = ({ pythonCode, onUpdateCode, isMobile }) => {
             </div>
           </div>
           
-          {pythonCode && (
+          {pythonCode ? (
             <motion.a
               href={`https://colab.research.google.com/`}
               target="_blank"
@@ -89,6 +89,23 @@ const CodeSection = ({ pythonCode, onUpdateCode, isMobile }) => {
               <Play className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
               Run in Colab
             </motion.a>
+          ) : hasPaper && (
+            <motion.button
+              onClick={onGenerateCode}
+              disabled={isGenerating}
+              whileHover={{ scale: 1.05, y: -1 }}
+              whileTap={{ scale: 0.97 }}
+              className="px-4 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-2 group disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{
+                background: 'linear-gradient(to right, #3FB950, #2ea043)',
+                color: '#E6EDF3',
+                boxShadow: '0 4px 12px -2px rgba(63, 185, 80, 0.3)',
+                border: '1px solid rgba(63, 185, 80, 0.3)'
+              }}
+            >
+              <Code2 className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
+              Generate Code
+            </motion.button>
           )}
         </div>
       </div>
