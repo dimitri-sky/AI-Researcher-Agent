@@ -1,6 +1,6 @@
 # AI Research Paper Generator
 
-Generate academic papers with matching Python implementations using Gemini, Grok, Claude, or GPT APIs. React-based web app with LaTeX rendering, interactive editing, and PDF export.
+Generate academic papers with matching Python implementations using Gemini, Grok, Claude, or OpenAI APIs. React-based web app with LaTeX rendering, interactive editing, and PDF export.
 
 ## Quick Start
 
